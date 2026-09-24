@@ -1,0 +1,17 @@
+{
+  "name": "ChromaSight Color Picker",
+  "short_name": "ChromaSight",
+  "version": "1.0.0",
+  "description": "Color picker for identifying colors using the device camera, with HEX, RGB, and HSL color values.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0C0D0E",
+  "theme_color": "#0C0D0E",
+  "icons": [
+    {
+      "src": "images/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}

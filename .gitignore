@@ -1,0 +1,9 @@
+# Visual Studio Code
+.vscode/
+
+# Local History for Visual Studio Code
+.history/
+
+# Project Specific
+.agents/
+_design/

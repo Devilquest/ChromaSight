@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="description" content="ChromaSight is a camera color picker for identifying colors using the device camera, with HEX, RGB, and HSL color values.">
+  <meta name="theme-color" content="#0C0D0E">
+  <title>ChromaSight | Real-World Color Picker</title>
+  
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="images/icon-192.png">
+  <link rel="apple-touch-icon" href="images/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="css/styles.css?v=1.0.0">
+  <script type="module" src="js/app.js?v=1.0.0"></script>
+</head>
+<body>
+  <div class="app-layout" id="app-root">
+    
+    <header class="app-header">
+      <div class="brand">
+        <span class="brand-glyph" id="brand-indicator"></span>
+        <h1 class="brand-title">ChromaSight <span class="brand-version">v1.0.0</span></h1>
+      </div>
+      <div class="header-actions">
+        <button type="button" class="icon-button" id="btn-torch" aria-label="Toggle flashlight" title="Toggle flashlight" disabled>
+          <svg width="14" height="18" viewBox="0 0 384 512" fill="currentColor">
+            <path d="M0 256L28.5 28c2-16 15.6-28 31.8-28L228.9 0c15 0 27.1 12.1 27.1 27.1 0 3.2-.6 6.5-1.7 9.5L208 160 347.3 160c20.2 0 36.7 16.4 36.7 36.7 0 7.4-2.2 14.6-6.4 20.7l-192.2 281c-5.9 8.6-15.6 13.7-25.9 13.7l-2.9 0c-15.7 0-28.5-12.8-28.5-28.5 0-2.3 .3-4.6 .9-6.9L176 288 32 288c-17.7 0-32-14.3-32-32z"/>
+          </svg>
+        </button>
+        <button type="button" class="icon-button" id="btn-flip" aria-label="Switch camera" title="Switch camera">
+          <svg width="18" height="18" viewBox="0 0 512 512" fill="currentColor">
+            <path d="M138.7 96l10.4-31.2C155.6 45.2 173.9 32 194.6 32l122.8 0c20.7 0 39 13.2 45.5 32.8L373.3 96 448 96c35.3 0 64 28.7 64 64l0 256c0 35.3-28.7 64-64 64L64 480c-35.3 0-64-28.7-64-64L0 160c0-35.3 28.7-64 64-64l74.7 0zM96 305.9c0 3.9 1.4 7.7 4 10.6l48 54c6.4 7.2 17.6 7.2 23.9 0l48-54c2.6-2.9 4-6.7 4-10.6l0-1.9c0-8.8-7.2-16-16-16l-24 0c0-39.8 32.2-72 72-72 4.4 0 8.7 .4 12.9 1.2l34.9-39.3c-14.6-6.4-30.8-9.9-47.8-9.9-66.3 0-120 53.7-120 120l-24 0c-8.8 0-16 7.2-16 16l0 1.9zm196-46.5c-2.6 2.9-4 6.7-4 10.6l0 1.9c0 8.8 7.2 16 16 16l24 0c0 39.8-32.2 72-72 72-4.4 0-8.7-.4-12.9-1.2l-34.9 39.3c14.7 6.4 30.8 9.9 47.8 9.9 66.3 0 120-53.7 120-120l24 0c8.8 0 16-7.2 16-16l0-1.9c0-3.9-1.4-7.7-4-10.6l-48-54c-6.4-7.2-17.6-7.2-23.9 0l-48 54z"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="main-content">
+      
+      <section class="viewfinder-section" aria-label="Camera Viewfinder">
+        <div class="viewfinder-container" id="viewfinder">
+          <video id="camera-stream" playsinline autoplay muted></video>
+          
+          <div class="viewfinder-overlay">
+            <span class="corner-bracket top-left"></span>
+            <span class="corner-bracket top-right"></span>
+            <span class="corner-bracket bottom-left"></span>
+            <span class="corner-bracket bottom-right"></span>
+            
+            <button type="button" class="btn-recenter" id="btn-recenter" aria-label="Recenter target" title="Recenter target">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="7"/>
+                <line x1="12" y1="1" x2="12" y2="5"/>
+                <line x1="12" y1="19" x2="12" y2="23"/>
+                <line x1="1" y1="12" x2="5" y2="12"/>
+                <line x1="19" y1="12" x2="23" y2="12"/>
+                <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+              </svg>
+            </button>
+
+            <div class="reticle" id="reticle" aria-hidden="true">
+              <div class="reticle-outer-ring"></div>
+              <div class="reticle-inner-dot" id="reticle-dot"></div>
+              <div class="reticle-crosshair horizontal"></div>
+              <div class="reticle-crosshair vertical"></div>
+            </div>
+            
+            <div class="freeze-badge" id="freeze-badge" hidden>
+              <span class="freeze-badge-dot"></span>
+              <span class="freeze-badge-text">FROZEN</span>
+            </div>
+          </div>
+          
+          <div class="camera-fallback" id="camera-fallback" hidden>
+            <div class="fallback-message">
+              <p class="fallback-title">Camera access unavailable</p>
+              <p class="fallback-desc">Grant permissions to use your real camera, or test with the interactive color simulator.</p>
+              <div class="fallback-actions">
+                <button type="button" class="btn btn-secondary" id="btn-request-camera">Grant Camera Access</button>
+                <button type="button" class="btn btn-subtle" id="btn-dismiss-fallback">Explore Demo Palette</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sampling-wrapper">
+          <div class="sampling-controls-row">
+            <div class="sampling-toggle-group" role="group" aria-label="Sampling Area">
+              <button type="button" class="toggle-btn active" id="btn-sample-point" data-mode="1">
+                Point (1px)
+              </button>
+              <button type="button" class="toggle-btn" id="btn-sample-smooth" data-mode="5">
+                Smooth (5px)
+              </button>
+            </div>
+            <button type="button" class="btn-sample-info" id="btn-sample-info" aria-label="Learn about sampling modes" aria-expanded="false" title="What do these options mean?">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+              </svg>
+            </button>
+          </div>
+          <div class="sampling-popover" id="sampling-popover" hidden>
+            <div class="popover-header">
+              <span class="popover-title">Sampling Precision</span>
+              <button type="button" class="popover-close-btn" id="btn-close-popover" aria-label="Close explanation">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+            <div class="popover-content">
+              <div class="popover-item">
+                <span class="popover-tag">Point (1px)</span>
+                <p class="popover-desc">Measures the color of the single pixel at the center of the reticle.</p>
+              </div>
+              <div class="popover-item">
+                <span class="popover-tag">Smooth (5px)</span>
+                <p class="popover-desc">Measures the average color of a 5×5 pixel area centered on the reticle.</p>
+              </div>
+              <div class="popover-item">
+                <span class="popover-tag">Target Reticle</span>
+                <p class="popover-desc">Tap anywhere on the viewfinder to move the reticle. Double-tap or press the target button to center it.</p>
+              </div>
+              <div class="popover-item">
+                <span class="popover-tag">Freeze / Resume</span>
+                <p class="popover-desc">Freezes the current color reading. Press again to resume live scanning.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="telemetry-section" aria-label="Color Telemetry">
+        <div class="telemetry-card">
+          <div class="color-preview-block">
+            <div class="color-swatch-large" id="live-swatch" aria-label="Active color preview"></div>
+            <div class="color-primary-meta">
+              <div class="color-name" id="color-name-label">Scanning...</div>
+              <div class="color-hex-value" id="color-hex-value">#------</div>
+            </div>
+            <div class="color-actions-group">
+              <button type="button" class="btn-action-telemetry" id="btn-copy-hex-chip" title="Copy HEX" aria-label="Copy HEX">
+                <span class="btn-copy-icon icon-copy">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                </span>
+                <span class="btn-copy-icon icon-check" aria-hidden="true">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </span>
+              </button>
+              <button type="button" class="btn-action-telemetry btn-freeze" id="btn-freeze" aria-label="Freeze or resume scanner">
+                <span class="btn-freeze-state state-live">
+                  <span class="btn-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                      <rect x="6" y="4" width="4" height="16" rx="1.5"></rect>
+                      <rect x="14" y="4" width="4" height="16" rx="1.5"></rect>
+                    </svg>
+                  </span>
+                  <span class="btn-label" id="freeze-btn-label">Freeze</span>
+                </span>
+                <span class="btn-freeze-state state-frozen" aria-hidden="true">
+                  <span class="btn-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                      <polygon points="6 4 20 12 6 20 6 4"></polygon>
+                    </svg>
+                  </span>
+                  <span class="btn-label">Resume</span>
+                </span>
+              </button>
+            </div>
+          </div>
+
+          <div class="color-details-row">
+            <button type="button" class="format-cell" id="cell-rgb" title="Click to copy RGB">
+              <div class="cell-body">
+                <span class="cell-label">RGB</span>
+                <span class="cell-value" id="color-rgb-value">---, ---, ---</span>
+              </div>
+              <div class="cell-feedback" aria-hidden="true">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span class="cell-feedback-text">Copied</span>
+              </div>
+            </button>
+            <button type="button" class="format-cell" id="cell-hsl" title="Click to copy HSL">
+              <div class="cell-body">
+                <span class="cell-label">HSL</span>
+                <span class="cell-value" id="color-hsl-value">---°, --%, --%</span>
+              </div>
+              <div class="cell-feedback" aria-hidden="true">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span class="cell-feedback-text">Copied</span>
+              </div>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section class="palette-section hidden" id="palette-section" aria-label="Recent Swatches" aria-hidden="true">
+        <div class="palette-header">
+          <span class="palette-title">Recent Captures</span>
+          <button type="button" class="btn-text" id="btn-clear-palette">Clear</button>
+        </div>
+        <div class="palette-tray" id="palette-tray">
+          <div class="palette-empty" id="palette-empty-hint">Copied colors will appear here.</div>
+        </div>
+      </section>
+
+    </main>
+
+    <div class="toast" id="toast" role="status" aria-live="polite">
+      <span class="toast-message" id="toast-message">Copied to clipboard</span>
+    </div>
+
+    <canvas id="hidden-sampler-canvas" hidden></canvas>
+  </div>
+</body>
+</html>
