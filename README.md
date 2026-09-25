@@ -4,7 +4,7 @@
 
 # ChromaSight
 
-**Color picker for identifying colors using the device camera, with HEX, RGB, and HSL color values.**
+**Real-world color picker for identifying colors using the device camera, with HEX, RGB, and HSL color values.**
 
 [![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](#changelog)
 [![License: MIT](https://img.shields.io/badge/License-MIT-f59e0b.svg)](LICENSE)
