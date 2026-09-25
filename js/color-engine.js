@@ -390,9 +390,10 @@ export function getClosestColorName(r, g, b) {
  * @param {number} centerX - Horizontal center coordinate.
  * @param {number} centerY - Vertical center coordinate.
  * @param {number} [sampleSize=1] - Pixel sample width and height (odd number e.g. 1 or 5).
+ * @param {{ r: number, g: number, b: number }|null} [calibrationGains=null] - Multiplier gains for color calibration.
  * @returns {{ r: number, g: number, b: number, hex: string, hsl: { h: number, s: number, l: number, formatted: string }, name: string }} Sampled color metrics.
  */
-export function samplePixelColor(ctx, centerX, centerY, sampleSize = 1) {
+export function samplePixelColor(ctx, centerX, centerY, sampleSize = 1, calibrationGains = null) {
   const half = Math.floor(sampleSize / 2);
   const startX = Math.max(0, Math.floor(centerX - half));
   const startY = Math.max(0, Math.floor(centerY - half));
@@ -411,9 +412,15 @@ export function samplePixelColor(ctx, centerX, centerY, sampleSize = 1) {
     totalB += data[i + 2];
   }
 
-  const r = Math.round(totalR / pixelCount);
-  const g = Math.round(totalG / pixelCount);
-  const b = Math.round(totalB / pixelCount);
+  let r = Math.round(totalR / pixelCount);
+  let g = Math.round(totalG / pixelCount);
+  let b = Math.round(totalB / pixelCount);
+
+  if (calibrationGains) {
+    r = Math.min(255, Math.max(0, Math.round(r * calibrationGains.r)));
+    g = Math.min(255, Math.max(0, Math.round(g * calibrationGains.g)));
+    b = Math.min(255, Math.max(0, Math.round(b * calibrationGains.b)));
+  }
 
   const hex = rgbToHex(r, g, b);
   const hsl = rgbToHsl(r, g, b);

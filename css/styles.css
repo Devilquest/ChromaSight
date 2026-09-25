@@ -6,6 +6,8 @@
   --surface-base: #141619;
   --surface-raised: #1c1e22;
   --surface-hover: #26292f;
+  --surface-bg: #141619;
+  --accent-primary: #38bdf8;
   --border-subtle: rgba(255, 255, 255, 0.08);
   --border-active: rgba(255, 255, 255, 0.24);
   --text-primary: #f0f2f5;
@@ -1036,8 +1038,307 @@ button {
 }
 
 /* ==============================================
+   CAMERA CALIBRATION & WHITE BALANCE
+   ============================================== */
+.icon-button.active {
+  background-color: var(--surface-hover);
+  color: var(--accent-primary);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+}
+
+.wb-drawer-wrapper {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              opacity 0.22s ease,
+              margin-top 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              visibility 0.28s;
+  opacity: 0;
+  visibility: hidden;
+  margin-top: -8px;
+  overflow: hidden;
+  pointer-events: none;
+  width: 100%;
+}
+
+.wb-drawer-wrapper.open {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  visibility: visible;
+  margin-top: 0;
+  pointer-events: auto;
+}
+
+.wb-drawer-inner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.wb-drawer {
+  width: 100%;
+  background: rgba(18, 20, 24, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.wb-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.wb-drawer-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.wb-drawer-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-wb-reset {
+  font-size: 0.75rem;
+  padding: 2px 6px;
+}
+
+.btn-close-subtle {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  transition: color 0.15s ease;
+}
+
+.btn-close-subtle:hover {
+  color: var(--text-primary);
+}
+
+.wb-presets-tray {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  width: 100%;
+}
+
+.btn-wb-preset {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background-color: var(--surface-base);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 8px 6px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  text-align: center;
+  white-space: nowrap;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.wb-preset-icon {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  fill: currentColor;
+}
+
+.btn-wb-preset:hover {
+  background-color: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+.btn-wb-preset.active {
+  background-color: rgba(56, 189, 248, 0.12);
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+  font-weight: 600;
+}
+
+.wb-quick-action {
+  width: 100%;
+}
+
+.btn-calibrate-target {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: var(--surface-base);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
+}
+
+.btn-calibrate-target:hover {
+  background-color: var(--surface-hover);
+  border-color: var(--border-active);
+  color: var(--text-primary);
+}
+
+.btn-calibrate-target:active {
+  transform: scale(0.99);
+}
+
+.wb-sliders-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.wb-slider-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.wb-slider-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.wb-value-chip {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.7rem;
+  color: var(--text-primary);
+  background-color: rgba(255, 255, 255, 0.04);
+  padding: 1px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--border-subtle);
+}
+
+.wb-slider-track-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wb-slider-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  user-select: none;
+  color: var(--text-secondary);
+  transition: color 0.15s ease;
+}
+
+.wb-slider-icon svg {
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
+}
+
+.wb-tint-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.wb-tint-swatch.green {
+  background: linear-gradient(135deg, #4ade80 0%, #15803d 100%);
+  border: 1px solid rgba(74, 222, 128, 0.4);
+}
+
+.wb-tint-swatch.magenta {
+  background: linear-gradient(135deg, #f472b6 0%, #a21caf 100%);
+  border: 1px solid rgba(244, 114, 182, 0.4);
+}
+
+.wb-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--surface-hover);
+  outline: none;
+  cursor: pointer;
+  border: 1px solid var(--border-subtle);
+}
+
+.wb-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #f0f2f5;
+  border: 1.5px solid rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  transition: transform 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.wb-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  background: #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6), 0 0 0 3px rgba(255, 255, 255, 0.1);
+}
+
+.wb-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #f0f2f5;
+  border: 1.5px solid rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  transition: transform 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.wb-slider::-moz-range-thumb:hover {
+  transform: scale(1.15);
+  background: #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6), 0 0 0 3px rgba(255, 255, 255, 0.1);
+}
+
+/* ==============================================
    ANIMATIONS & KEYFRAMES
    ============================================== */
+@keyframes slide-fade-down {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @keyframes pulse-ring {
   0% {
     transform: scale(1);
