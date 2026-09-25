@@ -3,6 +3,9 @@ export const MAX_SWATCHES = 8;
 
 let toastTimer = null;
 
+//=============================================
+// FEEDBACK & NOTIFICATIONS
+//=============================================
 /**
  * Triggers subtle device haptic feedback if supported by the browser.
  * @param {number} [duration=15] - Duration of vibration in milliseconds.
@@ -75,6 +78,9 @@ export async function copyToClipboard(text, feedbackMsg = "Copied to clipboard")
   }
 }
 
+//=============================================
+// PALETTE STORAGE & RENDERING
+//=============================================
 /**
  * Retrieves saved color swatches from localStorage.
  * @returns {Array<{ hex: string, rgb: string, hsl: string, name: string, timestamp: number }>} Saved colors array.
@@ -129,4 +135,47 @@ export function clearPalette() {
     localStorage.removeItem(STORAGE_KEY);
   } catch {
   }
+}
+
+/**
+ * Renders the saved swatches in the bottom palette tray.
+ * @param {HTMLElement} paletteTray - Swatches container DOM element.
+ * @param {HTMLElement} paletteSection - Section wrapper element to toggle visibility.
+ * @param {Function} [onSelectColor] - Callback invoked when a swatch is clicked.
+ */
+export function renderRecentPalette(paletteTray, paletteSection, onSelectColor) {
+  if (!paletteTray) return;
+  const swatches = getSavedSwatches();
+  paletteTray.innerHTML = "";
+
+  if (swatches.length === 0) {
+    if (paletteSection) {
+      paletteSection.classList.add("hidden");
+      paletteSection.setAttribute("aria-hidden", "true");
+    }
+    return;
+  }
+
+  if (paletteSection) {
+    paletteSection.classList.remove("hidden");
+    paletteSection.setAttribute("aria-hidden", "false");
+  }
+
+  swatches.forEach(swatch => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "swatch-item";
+    btn.style.setProperty("--swatch-color", swatch.hex);
+    btn.title = `${swatch.name} (${swatch.hex})`;
+    btn.setAttribute("aria-label", `Select color ${swatch.hex}`);
+
+    btn.addEventListener("click", () => {
+      triggerHaptic(15);
+      if (typeof onSelectColor === "function") {
+        onSelectColor(swatch);
+      }
+    });
+
+    paletteTray.appendChild(btn);
+  });
 }

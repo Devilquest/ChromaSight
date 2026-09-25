@@ -1,5 +1,8 @@
-import { samplePixelColor, rgbToHex, rgbToHsl, getClosestColorName } from "./color-engine.js?v=1.0.1";
-import { copyToClipboard, saveColorToPalette, getSavedSwatches, clearPalette, triggerHaptic, showToast } from "./palette.js?v=1.0.1";
+import { samplePixelColor, rgbToHsl } from "./color-engine.js";
+import { copyToClipboard, saveColorToPalette, renderRecentPalette, clearPalette, triggerHaptic, showToast } from "./palette.js";
+import { startCamera, toggleTorch, switchCameraFacing, setupMockCanvasFallback } from "./camera.js";
+import { getReticlePosition, recenterReticle, getFrameCoordinates, bindReticleInteractions } from "./reticle.js";
+import { getCalibrationGains, bindCalibrationEvents } from "./calibration.js";
 
 //=============================================
 // DOM REFERENCES & STATE
@@ -21,32 +24,15 @@ const reticleElement = document.getElementById("reticle");
 const btnRecenter = document.getElementById("btn-recenter");
 
 const freezeBtn = document.getElementById("btn-freeze");
-const freezeBtnLabel = document.getElementById("freeze-btn-label");
 const copyHexChip = document.getElementById("btn-copy-hex-chip");
 const cellRgb = document.getElementById("cell-rgb");
 const cellHsl = document.getElementById("cell-hsl");
 
-const copyTimeouts = {
-  hex: null,
-  rgb: null,
-  hsl: null
-};
+const copyTimeouts = { hex: null, rgb: null, hsl: null };
 
 const btnTorch = document.getElementById("btn-torch");
 const btnFlip = document.getElementById("btn-flip");
-const btnWbToggle = document.getElementById("btn-wb-toggle");
-const wbDrawerWrapper = document.getElementById("wb-drawer-wrapper");
-const btnCloseWb = document.getElementById("btn-close-wb");
-const btnWbReset = document.getElementById("btn-wb-reset");
-const btnCalibrateTarget = document.getElementById("btn-calibrate-target");
-const wbPresetButtons = document.querySelectorAll(".btn-wb-preset");
-const sliderWbTemp = document.getElementById("slider-wb-temp");
-const sliderWbTint = document.getElementById("slider-wb-tint");
-const sliderWbExp = document.getElementById("slider-wb-exp");
-const wbTempVal = document.getElementById("wb-temp-val");
-const wbTintVal = document.getElementById("wb-tint-val");
-const wbExpVal = document.getElementById("wb-exp-val");
-const wbMatrix = document.getElementById("wb-matrix");
+
 const btnSamplePoint = document.getElementById("btn-sample-point");
 const btnSampleSmooth = document.getElementById("btn-sample-smooth");
 const btnSampleInfo = document.getElementById("btn-sample-info");
@@ -56,18 +42,9 @@ const paletteSection = document.getElementById("palette-section");
 const paletteTray = document.getElementById("palette-tray");
 const btnClearPalette = document.getElementById("btn-clear-palette");
 
-let currentStream = null;
-let currentTrack = null;
-let facingMode = "environment";
-let isTorchOn = false;
 let isFrozen = false;
 let sampleSize = 1;
 let animationFrameId = null;
-
-let reticlePos = { x: 0.5, y: 0.5 };
-let isPointerActive = false;
-let lastTapTimestamp = 0;
-let lastTapCoords = { x: 0, y: 0 };
 
 let currentColorData = {
   r: 59,
@@ -80,7 +57,7 @@ let currentColorData = {
 };
 
 //=============================================
-// COLOR PROCESSING & TELEMETRY
+// COLOR SAMPLING & TELEMETRY
 //=============================================
 /**
  * Updates the UI elements and CSS custom properties with the latest color data.
@@ -106,81 +83,46 @@ function updateColorDisplay(data) {
 }
 
 /**
- * Calculates underlying canvas/video pixel coordinates corresponding to the reticle.
- * @returns {{ frameX: number, frameY: number }}
- */
-function getFrameCoordinates() {
-  const rect = viewfinderElement.getBoundingClientRect();
-  const vw = rect.width || 360;
-  const vh = rect.height || 360;
-  const touchX = reticlePos.x * vw;
-  const touchY = reticlePos.y * vh;
-
-  const canvasW = samplerCanvas.width || videoElement.videoWidth || 640;
-  const canvasH = samplerCanvas.height || videoElement.videoHeight || 480;
-
-  const scale = Math.max(vw / canvasW, vh / canvasH);
-  const renderedW = canvasW * scale;
-  const renderedH = canvasH * scale;
-  const offsetX = (renderedW - vw) / 2;
-  const offsetY = (renderedH - vh) / 2;
-
-  const frameX = Math.max(0, Math.min(canvasW - 1, Math.floor((touchX + offsetX) / scale)));
-  const frameY = Math.max(0, Math.min(canvasH - 1, Math.floor((touchY + offsetY) / scale)));
-
-  return { frameX, frameY };
-}
-
-/**
- * Updates the normalized reticle position and updates DOM coordinates.
- * @param {number} normX - Relative X coordinate (0 to 1).
- * @param {number} normY - Relative Y coordinate (0 to 1).
- */
-function setReticlePosition(normX, normY) {
-  const clampedX = Math.max(0.06, Math.min(0.94, normX));
-  const clampedY = Math.max(0.06, Math.min(0.94, normY));
-  reticlePos.x = clampedX;
-  reticlePos.y = clampedY;
-
-  reticleElement.style.left = `${(clampedX * 100).toFixed(2)}%`;
-  reticleElement.style.top = `${(clampedY * 100).toFixed(2)}%`;
-
-  const isCentered = Math.abs(clampedX - 0.5) < 0.02 && Math.abs(clampedY - 0.5) < 0.02;
-  if (btnRecenter) {
-    btnRecenter.classList.toggle("visible", !isCentered);
-  }
-}
-
-/**
- * Resets the reticle back to the exact center of the viewfinder.
- */
-function recenterReticle() {
-  triggerHaptic(20);
-  reticleElement.classList.add("animated");
-  setReticlePosition(0.5, 0.5);
-  sampleCurrentFrame();
-  showToast("Target centered", 1200);
-}
-
-/**
  * Samples the color at the current reticle position from the active source.
  */
 function sampleCurrentFrame() {
+  const gains = getCalibrationGains();
   const fallbackCanvas = document.getElementById("fallback-interactive-canvas");
   if (fallbackCanvas && !videoElement.srcObject) {
     const ctx = fallbackCanvas.getContext("2d");
     if (ctx) {
-      const x = Math.max(0, Math.min(fallbackCanvas.width - 1, Math.floor(reticlePos.x * fallbackCanvas.width)));
-      const y = Math.max(0, Math.min(fallbackCanvas.height - 1, Math.floor(reticlePos.y * fallbackCanvas.height)));
-      const sampled = samplePixelColor(ctx, x, y, sampleSize, calibrationState.gains);
+      const pos = getReticlePosition();
+      const x = Math.max(0, Math.min(fallbackCanvas.width - 1, Math.floor(pos.x * fallbackCanvas.width)));
+      const y = Math.max(0, Math.min(fallbackCanvas.height - 1, Math.floor(pos.y * fallbackCanvas.height)));
+      const sampled = samplePixelColor(ctx, x, y, sampleSize, gains);
       updateColorDisplay(sampled);
     }
     return;
   }
 
-  const { frameX, frameY } = getFrameCoordinates();
-  const sampled = samplePixelColor(samplerCtx, frameX, frameY, sampleSize, calibrationState.gains);
+  const { frameX, frameY } = getFrameCoordinates(viewfinderElement, samplerCanvas, videoElement);
+  const sampled = samplePixelColor(samplerCtx, frameX, frameY, sampleSize, gains);
   updateColorDisplay(sampled);
+}
+
+/**
+ * Obtains uncalibrated raw color under the reticle for white balance calibration.
+ * @returns {{ r: number, g: number, b: number }|null} Raw sampled color.
+ */
+function getRawTargetColor() {
+  const fallbackCanvas = document.getElementById("fallback-interactive-canvas");
+  if (fallbackCanvas && !videoElement.srcObject) {
+    const ctx = fallbackCanvas.getContext("2d");
+    if (ctx) {
+      const pos = getReticlePosition();
+      const x = Math.max(0, Math.min(fallbackCanvas.width - 1, Math.floor(pos.x * fallbackCanvas.width)));
+      const y = Math.max(0, Math.min(fallbackCanvas.height - 1, Math.floor(pos.y * fallbackCanvas.height)));
+      return samplePixelColor(ctx, x, y, sampleSize, null);
+    }
+  }
+
+  const { frameX, frameY } = getFrameCoordinates(viewfinderElement, samplerCanvas, videoElement);
+  return samplePixelColor(samplerCtx, frameX, frameY, sampleSize, null);
 }
 
 /**
@@ -202,108 +144,27 @@ function processVideoFrame() {
   animationFrameId = requestAnimationFrame(processVideoFrame);
 }
 
-//=============================================
-// CAMERA STREAM & HARDWARE CONTROLS
-//=============================================
 /**
- * Initializes and starts the camera stream with error resilience and fallback UI.
- * @returns {Promise<void>}
+ * Starts the video stream and launches the continuous sampling loop.
  */
-async function startCamera() {
-  stopCurrentStream();
-
-  const constraints = {
-    audio: false,
-    video: {
-      facingMode: { ideal: facingMode },
-      width: { ideal: 1080 },
-      height: { ideal: 1080 }
+function startLiveCamera() {
+  startCamera(
+    videoElement,
+    cameraFallbackElement,
+    btnTorch,
+    () => {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+      isFrozen = false;
+      freezeBadge.hidden = true;
+      freezeBtn.classList.remove("frozen");
+      animationFrameId = requestAnimationFrame(processVideoFrame);
+    },
+    () => {
+      setupMockCanvasFallback(viewfinderElement, sampleCurrentFrame);
     }
-  };
-
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia(constraints);
-    currentStream = stream;
-    videoElement.srcObject = stream;
-    cameraFallbackElement.hidden = true;
-
-    currentTrack = stream.getVideoTracks()[0];
-    checkTorchCapability();
-
-    await videoElement.play();
-    if (animationFrameId) {
-      cancelAnimationFrame(animationFrameId);
-    }
-    isFrozen = false;
-    freezeBadge.hidden = true;
-    freezeBtn.classList.remove("frozen");
-    animationFrameId = requestAnimationFrame(processVideoFrame);
-  } catch (err) {
-    cameraFallbackElement.hidden = false;
-    btnTorch.disabled = true;
-    setupMockCanvasFallback();
-  }
-}
-
-/**
- * Stops the current media stream tracks.
- */
-function stopCurrentStream() {
-  if (animationFrameId) {
-    cancelAnimationFrame(animationFrameId);
-    animationFrameId = null;
-  }
-  if (currentStream) {
-    currentStream.getTracks().forEach(track => track.stop());
-    currentStream = null;
-    currentTrack = null;
-  }
-}
-
-/**
- * Detects whether the device camera supports a hardware torch/flashlight.
- */
-function checkTorchCapability() {
-  if (!currentTrack) {
-    btnTorch.disabled = true;
-    return;
-  }
-
-  const capabilities = currentTrack.getCapabilities ? currentTrack.getCapabilities() : {};
-  if ("torch" in capabilities) {
-    btnTorch.disabled = false;
-  } else {
-    btnTorch.disabled = true;
-  }
-}
-
-/**
- * Toggles the mobile flashlight if supported by hardware.
- */
-async function toggleTorch() {
-  if (!currentTrack || btnTorch.disabled) return;
-
-  try {
-    isTorchOn = !isTorchOn;
-    await currentTrack.applyConstraints({
-      advanced: [{ torch: isTorchOn }]
-    });
-    btnTorch.classList.toggle("active", isTorchOn);
-    btnTorch.blur();
-    showToast(isTorchOn ? "Flashlight turned on" : "Flashlight turned off");
-  } catch {
-    btnTorch.disabled = true;
-  }
-}
-
-/**
- * Switches between front and back camera streams.
- */
-function switchCameraFacing() {
-  facingMode = facingMode === "environment" ? "user" : "environment";
-  triggerHaptic(15);
-  showToast(`Switched to ${facingMode === "environment" ? "back" : "front"} camera`);
-  startCamera();
+  );
 }
 
 //=============================================
@@ -325,10 +186,28 @@ function toggleFreeze() {
     videoElement.play();
     freezeBadge.hidden = true;
     freezeBtn.classList.remove("frozen");
-    recenterReticle();
+    recenterReticle(reticleElement, btnRecenter, sampleCurrentFrame);
     showToast("Scanner resumed");
     animationFrameId = requestAnimationFrame(processVideoFrame);
   }
+}
+
+/**
+ * Refreshes the recent captures tray UI.
+ */
+function refreshPaletteTray() {
+  renderRecentPalette(paletteTray, paletteSection, swatch => {
+    const rgbNumbers = swatch.rgb.split(",").map(n => parseInt(n.trim(), 10));
+    updateColorDisplay({
+      r: rgbNumbers[0] || 0,
+      g: rgbNumbers[1] || 0,
+      b: rgbNumbers[2] || 0,
+      hex: swatch.hex,
+      hsl: rgbToHsl(rgbNumbers[0] || 0, rgbNumbers[1] || 0, rgbNumbers[2] || 0),
+      name: swatch.name
+    });
+    copyToClipboard(swatch.hex, `Copied ${swatch.hex}`);
+  });
 }
 
 /**
@@ -364,7 +243,7 @@ async function handleCopy(format = "hex") {
     }, 1500);
 
     saveColorToPalette(currentColorData);
-    renderRecentPalette();
+    refreshPaletteTray();
   }
 }
 
@@ -389,342 +268,7 @@ function setSamplingMode(size) {
 }
 
 //=============================================
-// WHITE BALANCE & CAMERA CALIBRATION
-//=============================================
-const calibrationState = {
-  preset: "auto",
-  temp: 0,
-  tint: 0,
-  exp: 0,
-  gains: { r: 1, g: 1, b: 1 }
-};
-
-const WB_PRESETS = {
-  auto: { temp: 0, tint: 0, exp: 0 },
-  daylight: { temp: 10, tint: 0, exp: 0 },
-  cloudy: { temp: 25, tint: 0, exp: 0 },
-  tungsten: { temp: -35, tint: 5, exp: 0 },
-  fluorescent: { temp: -10, tint: 25, exp: 0 },
-  warm: { temp: -35, tint: 5, exp: 0 },
-  indoor: { temp: -10, tint: 25, exp: 0 }
-};
-
-/**
- * Calculates RGB multiplier gains from temperature, tint, and exposure.
- * @param {number} temp - Temperature offset (-100 to 100).
- * @param {number} tint - Tint offset (-100 to 100).
- * @param {number} exp - Exposure offset (-50 to 50).
- * @returns {{ r: number, g: number, b: number }} Calibration gains.
- */
-function calculateGains(temp, tint, exp) {
-  let r = 1;
-  let g = 1;
-  let b = 1;
-
-  if (temp > 0) {
-    r += (temp / 100) * 0.4;
-    b -= (temp / 100) * 0.25;
-  } else if (temp < 0) {
-    r += (temp / 100) * 0.25;
-    b -= (temp / 100) * 0.4;
-  }
-
-  if (tint > 0) {
-    r += (tint / 100) * 0.15;
-    g -= (tint / 100) * 0.2;
-    b += (tint / 100) * 0.15;
-  } else if (tint < 0) {
-    g -= (tint / 100) * 0.25;
-  }
-
-  const expFactor = Math.pow(2, exp / 40);
-  r *= expFactor;
-  g *= expFactor;
-  b *= expFactor;
-
-  return { r, g, b };
-}
-
-/**
- * Applies current calibration gains to live video and UI readout.
- */
-function applyCalibration() {
-  if (wbMatrix) {
-    const { r, g, b } = calibrationState.gains;
-    wbMatrix.setAttribute("values", `${r.toFixed(3)} 0 0 0 0  0 ${g.toFixed(3)} 0 0 0  0 0 ${b.toFixed(3)} 0 0  0 0 0 1 0`);
-  }
-
-  const isNeutral = calibrationState.preset === "auto" && 
-                    calibrationState.temp === 0 && 
-                    calibrationState.tint === 0 && 
-                    calibrationState.exp === 0 &&
-                    Math.abs(calibrationState.gains.r - 1) < 0.001 &&
-                    Math.abs(calibrationState.gains.g - 1) < 0.001 &&
-                    Math.abs(calibrationState.gains.b - 1) < 0.001;
-
-  if (videoElement) {
-    videoElement.style.filter = isNeutral ? "none" : "url(#wb-filter)";
-  }
-
-  const fallbackCanvas = document.getElementById("fallback-interactive-canvas");
-  if (fallbackCanvas) {
-    fallbackCanvas.style.filter = isNeutral ? "none" : "url(#wb-filter)";
-  }
-
-  if (wbTempVal) wbTempVal.textContent = calibrationState.temp > 0 ? `+${calibrationState.temp}` : String(calibrationState.temp);
-  if (wbTintVal) wbTintVal.textContent = calibrationState.tint > 0 ? `+${calibrationState.tint}` : String(calibrationState.tint);
-  if (wbExpVal) wbExpVal.textContent = calibrationState.exp > 0 ? `+${(calibrationState.exp / 25).toFixed(1)} EV` : `${(calibrationState.exp / 25).toFixed(1)} EV`;
-
-  if (sliderWbTemp) sliderWbTemp.value = String(calibrationState.temp);
-  if (sliderWbTint) sliderWbTint.value = String(calibrationState.tint);
-  if (sliderWbExp) sliderWbExp.value = String(calibrationState.exp);
-
-  wbPresetButtons.forEach(btn => {
-    const isCurrent = btn.dataset.preset === calibrationState.preset;
-    btn.classList.toggle("active", isCurrent);
-    btn.setAttribute("aria-checked", String(isCurrent));
-  });
-
-  sampleCurrentFrame();
-}
-
-/**
- * Activates a named white balance preset.
- * @param {string} presetKey - Key of the preset.
- */
-function setWbPreset(presetKey) {
-  calibrationState.preset = presetKey;
-  if (WB_PRESETS[presetKey]) {
-    const p = WB_PRESETS[presetKey];
-    calibrationState.temp = p.temp;
-    calibrationState.tint = p.tint;
-    calibrationState.exp = p.exp;
-    calibrationState.gains = calculateGains(p.temp, p.tint, p.exp);
-  }
-  applyCalibration();
-  triggerHaptic(15);
-  const presetLabels = {
-    auto: "Auto",
-    daylight: "Daylight",
-    cloudy: "Cloudy",
-    tungsten: "Tungsten",
-    fluorescent: "Fluorescent",
-    manual: "Manual"
-  };
-  const label = presetLabels[presetKey] || (presetKey.charAt(0).toUpperCase() + presetKey.slice(1));
-  showToast(`White balance: ${label}`);
-}
-
-/**
- * Calibrates white balance multipliers so that the target reticle pixel becomes neutral gray.
- */
-function calibrateOnTarget() {
-  const fallbackCanvas = document.getElementById("fallback-interactive-canvas");
-  let rawColor = null;
-
-  if (fallbackCanvas && !videoElement.srcObject) {
-    const ctx = fallbackCanvas.getContext("2d");
-    if (ctx) {
-      const x = Math.max(0, Math.min(fallbackCanvas.width - 1, Math.floor(reticlePos.x * fallbackCanvas.width)));
-      const y = Math.max(0, Math.min(fallbackCanvas.height - 1, Math.floor(reticlePos.y * fallbackCanvas.height)));
-      rawColor = samplePixelColor(ctx, x, y, sampleSize, null);
-    }
-  } else {
-    const { frameX, frameY } = getFrameCoordinates();
-    rawColor = samplePixelColor(samplerCtx, frameX, frameY, sampleSize, null);
-  }
-
-  if (!rawColor || (rawColor.r === 0 && rawColor.g === 0 && rawColor.b === 0)) {
-    showToast("Cannot calibrate: target too dark");
-    return;
-  }
-
-  const grayTarget = (rawColor.r + rawColor.g + rawColor.b) / 3;
-  const gainR = grayTarget / Math.max(1, rawColor.r);
-  const gainG = grayTarget / Math.max(1, rawColor.g);
-  const gainB = grayTarget / Math.max(1, rawColor.b);
-
-  calibrationState.preset = "manual";
-  calibrationState.gains = { r: gainR, g: gainG, b: gainB };
-  calibrationState.temp = Math.round((gainR - gainB) * 50);
-  calibrationState.tint = Math.round((gainR + gainB - 2 * gainG) * 50);
-  calibrationState.exp = 0;
-
-  applyCalibration();
-  triggerHaptic(50);
-  showToast("Calibrated on target (White/Gray)");
-}
-
-/**
- * Resets white balance calibration back to neutral auto.
- */
-function resetCalibration() {
-  setWbPreset("auto");
-}
-
-/**
- * Toggles visibility of the white balance calibration drawer with smooth animation.
- */
-function toggleWbDrawer() {
-  if (!wbDrawerWrapper) return;
-  const isOpening = !wbDrawerWrapper.classList.contains("open");
-  wbDrawerWrapper.classList.toggle("open", isOpening);
-  if (btnWbToggle) {
-    btnWbToggle.classList.toggle("active", isOpening);
-    btnWbToggle.setAttribute("aria-expanded", String(isOpening));
-  }
-  if (isOpening) {
-    triggerHaptic(20);
-  }
-}
-
-/**
- * Renders the saved swatches in the bottom palette tray.
- */
-function renderRecentPalette() {
-  const swatches = getSavedSwatches();
-  paletteTray.innerHTML = "";
-
-  if (swatches.length === 0) {
-    if (paletteSection) {
-      paletteSection.classList.add("hidden");
-      paletteSection.setAttribute("aria-hidden", "true");
-    }
-    return;
-  }
-
-  if (paletteSection) {
-    paletteSection.classList.remove("hidden");
-    paletteSection.setAttribute("aria-hidden", "false");
-  }
-
-  swatches.forEach(swatch => {
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "swatch-item";
-    btn.style.setProperty("--swatch-color", swatch.hex);
-    btn.title = `${swatch.name} (${swatch.hex})`;
-    btn.setAttribute("aria-label", `Select color ${swatch.hex}`);
-
-    btn.addEventListener("click", () => {
-      triggerHaptic(15);
-      const rgbNumbers = swatch.rgb.split(",").map(n => parseInt(n.trim(), 10));
-      updateColorDisplay({
-        r: rgbNumbers[0] || 0,
-        g: rgbNumbers[1] || 0,
-        b: rgbNumbers[2] || 0,
-        hex: swatch.hex,
-        hsl: rgbToHsl(rgbNumbers[0] || 0, rgbNumbers[1] || 0, rgbNumbers[2] || 0),
-        name: swatch.name
-      });
-      copyToClipboard(swatch.hex, `Copied ${swatch.hex}`);
-    });
-
-    paletteTray.appendChild(btn);
-  });
-}
-
-//=============================================
-// FALLBACK CANVAS SIMULATION
-//=============================================
-/**
- * Creates an interactive fallback canvas if the device has no camera or permission is denied.
- */
-function setupMockCanvasFallback() {
-  let fallbackCanvas = document.getElementById("fallback-interactive-canvas");
-  if (!fallbackCanvas) {
-    fallbackCanvas = document.createElement("canvas");
-    fallbackCanvas.id = "fallback-interactive-canvas";
-    fallbackCanvas.className = "fallback-canvas";
-    viewfinderElement.prepend(fallbackCanvas);
-  }
-
-  const rect = viewfinderElement.getBoundingClientRect();
-  const width = Math.max(300, Math.floor(rect.width || 320));
-  const height = width;
-  fallbackCanvas.width = width;
-  fallbackCanvas.height = height;
-
-  const ctx = fallbackCanvas.getContext("2d");
-  const gradient = ctx.createLinearGradient(0, 0, width, height);
-  gradient.addColorStop(0, "#E76F51");
-  gradient.addColorStop(0.25, "#F4A261");
-  gradient.addColorStop(0.5, "#2A9D8F");
-  gradient.addColorStop(0.75, "#264653");
-  gradient.addColorStop(1, "#9D4EDD");
-  ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, width, height);
-
-  sampleCurrentFrame();
-}
-
-/**
- * Handles pointerdown on the viewfinder to position the reticle or recenter on double tap.
- * @param {PointerEvent} e - Pointer event.
- */
-function handleViewfinderPointerDown(e) {
-  if (e.target.closest("#btn-recenter") || e.target.closest(".btn-recenter")) {
-    return;
-  }
-
-  const rect = viewfinderElement.getBoundingClientRect();
-  const touchX = e.clientX - rect.left;
-  const touchY = e.clientY - rect.top;
-
-  const now = performance.now();
-  const dx = touchX - lastTapCoords.x;
-  const dy = touchY - lastTapCoords.y;
-  const dist = Math.sqrt(dx * dx + dy * dy);
-
-  if (now - lastTapTimestamp < 320 && dist < 35) {
-    lastTapTimestamp = 0;
-    recenterReticle();
-    return;
-  }
-
-  lastTapTimestamp = now;
-  lastTapCoords = { x: touchX, y: touchY };
-
-  isPointerActive = true;
-  viewfinderElement.setPointerCapture(e.pointerId);
-
-  reticleElement.classList.add("animated");
-  setReticlePosition(touchX / rect.width, touchY / rect.height);
-  sampleCurrentFrame();
-}
-
-/**
- * Handles pointermove across the viewfinder to drag the reticle and inspect colors.
- * @param {PointerEvent} e - Pointer event.
- */
-function handleViewfinderPointerMove(e) {
-  if (!isPointerActive) return;
-
-  reticleElement.classList.remove("animated");
-  reticleElement.classList.add("dragging");
-
-  const rect = viewfinderElement.getBoundingClientRect();
-  const touchX = e.clientX - rect.left;
-  const touchY = e.clientY - rect.top;
-
-  setReticlePosition(touchX / rect.width, touchY / rect.height);
-  sampleCurrentFrame();
-}
-
-/**
- * Handles pointerup and pointercancel to release pointer capture.
- * @param {PointerEvent} e - Pointer event.
- */
-function handleViewfinderPointerUp(e) {
-  isPointerActive = false;
-  reticleElement.classList.remove("dragging");
-  if (viewfinderElement.hasPointerCapture(e.pointerId)) {
-    viewfinderElement.releasePointerCapture(e.pointerId);
-  }
-}
-
-//=============================================
-// EVENT LISTENERS & INITIALIZATION
+// INITIALIZATION & EVENT BINDINGS
 //=============================================
 /**
  * Attaches all event listeners for user interactions.
@@ -735,76 +279,24 @@ function bindEventListeners() {
   cellRgb.addEventListener("click", () => handleCopy("rgb"));
   cellHsl.addEventListener("click", () => handleCopy("hsl"));
 
-  btnTorch.addEventListener("click", toggleTorch);
-  btnFlip.addEventListener("click", switchCameraFacing);
-
-  if (btnWbToggle) {
-    btnWbToggle.addEventListener("click", toggleWbDrawer);
-  }
-
-  if (btnCloseWb && wbDrawerWrapper) {
-    btnCloseWb.addEventListener("click", () => {
-      wbDrawerWrapper.classList.remove("open");
-      if (btnWbToggle) {
-        btnWbToggle.classList.remove("active");
-        btnWbToggle.setAttribute("aria-expanded", "false");
+  btnTorch.addEventListener("click", () => toggleTorch(btnTorch));
+  btnFlip.addEventListener("click", () => {
+    switchCameraFacing(videoElement, cameraFallbackElement, btnTorch, () => {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
       }
+      isFrozen = false;
+      freezeBadge.hidden = true;
+      freezeBtn.classList.remove("frozen");
+      animationFrameId = requestAnimationFrame(processVideoFrame);
     });
-  }
-
-  if (btnWbReset) {
-    btnWbReset.addEventListener("click", resetCalibration);
-  }
-
-  if (btnCalibrateTarget) {
-    btnCalibrateTarget.addEventListener("click", calibrateOnTarget);
-  }
-
-  wbPresetButtons.forEach(btn => {
-    btn.addEventListener("click", () => setWbPreset(btn.dataset.preset));
   });
 
-  if (sliderWbTemp) {
-    sliderWbTemp.addEventListener("input", e => {
-      calibrationState.temp = parseInt(e.target.value, 10);
-      calibrationState.preset = "manual";
-      calibrationState.gains = calculateGains(calibrationState.temp, calibrationState.tint, calibrationState.exp);
-      applyCalibration();
-    });
-  }
-
-  if (sliderWbTint) {
-    sliderWbTint.addEventListener("input", e => {
-      calibrationState.tint = parseInt(e.target.value, 10);
-      calibrationState.preset = "manual";
-      calibrationState.gains = calculateGains(calibrationState.temp, calibrationState.tint, calibrationState.exp);
-      applyCalibration();
-    });
-  }
-
-  if (sliderWbExp) {
-    sliderWbExp.addEventListener("input", e => {
-      calibrationState.exp = parseInt(e.target.value, 10);
-      calibrationState.preset = "manual";
-      calibrationState.gains = calculateGains(calibrationState.temp, calibrationState.tint, calibrationState.exp);
-      applyCalibration();
-    });
-  }
+  bindReticleInteractions(viewfinderElement, reticleElement, btnRecenter, sampleCurrentFrame);
+  bindCalibrationEvents({ onCalibrationChanged: sampleCurrentFrame, getRawTargetColor });
 
   btnSamplePoint.addEventListener("click", () => setSamplingMode(1));
   btnSampleSmooth.addEventListener("click", () => setSamplingMode(5));
-
-  if (btnRecenter) {
-    btnRecenter.addEventListener("click", e => {
-      e.stopPropagation();
-      recenterReticle();
-    });
-  }
-
-  viewfinderElement.addEventListener("pointerdown", handleViewfinderPointerDown);
-  viewfinderElement.addEventListener("pointermove", handleViewfinderPointerMove);
-  viewfinderElement.addEventListener("pointerup", handleViewfinderPointerUp);
-  viewfinderElement.addEventListener("pointercancel", handleViewfinderPointerUp);
 
   if (btnSampleInfo && samplingPopover) {
     btnSampleInfo.addEventListener("click", e => {
@@ -838,14 +330,12 @@ function bindEventListeners() {
 
   btnClearPalette.addEventListener("click", () => {
     clearPalette();
-    renderRecentPalette();
+    refreshPaletteTray();
     showToast("History cleared");
   });
 
   if (requestCameraBtn) {
-    requestCameraBtn.addEventListener("click", () => {
-      startCamera();
-    });
+    requestCameraBtn.addEventListener("click", startLiveCamera);
   }
 
   if (dismissFallbackBtn) {
@@ -870,8 +360,8 @@ function bindEventListeners() {
  */
 export function initializeApp() {
   bindEventListeners();
-  renderRecentPalette();
-  startCamera();
+  refreshPaletteTray();
+  startLiveCamera();
 }
 
 document.addEventListener("DOMContentLoaded", initializeApp);
