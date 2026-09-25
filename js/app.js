@@ -1,5 +1,5 @@
-import { samplePixelColor, rgbToHex, rgbToHsl, getClosestColorName } from "./color-engine.js?v=1.0.0";
-import { copyToClipboard, saveColorToPalette, getSavedSwatches, clearPalette, triggerHaptic, showToast } from "./palette.js?v=1.0.0";
+import { samplePixelColor, rgbToHex, rgbToHsl, getClosestColorName } from "./color-engine.js?v=1.0.1";
+import { copyToClipboard, saveColorToPalette, getSavedSwatches, clearPalette, triggerHaptic, showToast } from "./palette.js?v=1.0.1";
 
 //=============================================
 // DOM REFERENCES & STATE

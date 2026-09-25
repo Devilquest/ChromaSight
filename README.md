@@ -6,7 +6,7 @@
 
 **Real-world color picker for identifying colors using the device camera, with HEX, RGB, and HSL color values.**
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](#changelog)
+[![Version](https://img.shields.io/badge/version-1.0.1-blue.svg)](#changelog)
 [![License: MIT](https://img.shields.io/badge/License-MIT-f59e0b.svg)](LICENSE)
 [![Live Site](https://img.shields.io/badge/Live%20Site-Visit-10b981.svg)](https://devilquest.github.io/ChromaSight/)
 
@@ -51,9 +51,9 @@ ChromaSight is a client-side web application for color measurement. It captures 
 
 1. **Grant camera permission**: Allow camera access when prompted by the browser.
 2. **Position the reticle**: Tap or drag across the camera view to aim at a surface. Double-tap or press the target button to center it.
-3. **Choose sampling mode**: Select `Point (1px)` for single-pixel readings or `Smooth (5px)` for area averaging.
+3. **Select sampling mode**: Select `Point (1px)` for single-pixel readings or `Smooth (5px)` for area averaging.
 4. **Freeze the frame**: Press `Freeze` to pause the camera and inspect colors on the static image.
-5. **Copy color values**: Click HEX, RGB, or HSL to copy the value to the clipboard.
+5. **Copy color values**: Select HEX, RGB, or HSL to copy the value to the clipboard.
 
 ---
 
@@ -69,12 +69,12 @@ ChromaSight is a client-side web application for color measurement. It captures 
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/Devilquest/ColorWebApp.git
+   git clone https://github.com/Devilquest/ChromaSight.git
    ```
 
 2. **Navigate to the project root**:
    ```bash
-   cd ColorWebApp
+   cd ChromaSight
    ```
 
 3. **Launch a local server**:
@@ -122,6 +122,12 @@ ChromaSight is a client-side web application for color measurement. It captures 
 ---
 
 ## Changelog
+
+### [1.0.1]
+- **Changed**:
+  - **Viewport notifications**: Relocates floating toast notifications to the viewport bottom to prevent obstructing the camera viewfinder.
+  - **Freeze frame terminology**: Replaces color locking wording with camera frame freezing across UI hints, telemetry documentation, and status feedback.
+  - **Application branding**: Harmonizes the title and description to "ChromaSight | Real-World Color Picker" across the web manifest, document metadata, and documentation.
 
 ### [1.0.0]
 - **Added**: Initial release.
