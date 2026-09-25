@@ -297,7 +297,7 @@ function switchCameraFacing() {
 // USER INTERACTIONS & ACTIONS
 //=============================================
 /**
- * Freezes or resumes the color sampling feed.
+ * Freezes or resumes the camera frame feed.
  */
 function toggleFreeze() {
   triggerHaptic(25);
@@ -307,7 +307,7 @@ function toggleFreeze() {
     videoElement.pause();
     freezeBadge.hidden = false;
     freezeBtn.classList.add("frozen");
-    showToast("Color locked");
+    showToast("Image frozen");
   } else {
     videoElement.play();
     freezeBadge.hidden = true;
