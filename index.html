@@ -36,6 +36,11 @@
             <path d="M138.7 96l10.4-31.2C155.6 45.2 173.9 32 194.6 32l122.8 0c20.7 0 39 13.2 45.5 32.8L373.3 96 448 96c35.3 0 64 28.7 64 64l0 256c0 35.3-28.7 64-64 64L64 480c-35.3 0-64-28.7-64-64L0 160c0-35.3 28.7-64 64-64l74.7 0zM96 305.9c0 3.9 1.4 7.7 4 10.6l48 54c6.4 7.2 17.6 7.2 23.9 0l48-54c2.6-2.9 4-6.7 4-10.6l0-1.9c0-8.8-7.2-16-16-16l-24 0c0-39.8 32.2-72 72-72 4.4 0 8.7 .4 12.9 1.2l34.9-39.3c-14.6-6.4-30.8-9.9-47.8-9.9-66.3 0-120 53.7-120 120l-24 0c-8.8 0-16 7.2-16 16l0 1.9zm196-46.5c-2.6 2.9-4 6.7-4 10.6l0 1.9c0 8.8 7.2 16 16 16l24 0c0 39.8-32.2 72-72 72-4.4 0-8.7-.4-12.9-1.2l-34.9 39.3c14.7 6.4 30.8 9.9 47.8 9.9 66.3 0 120-53.7 120-120l24 0c8.8 0 16-7.2 16-16l0-1.9c0-3.9-1.4-7.7-4-10.6l-48-54c-6.4-7.2-17.6-7.2-23.9 0l-48 54z"/>
           </svg>
         </button>
+        <button type="button" class="icon-button" id="btn-wb-toggle" aria-label="Toggle camera calibration and white balance" title="White balance and calibration" aria-expanded="false">
+          <svg width="17" height="17" viewBox="0 0 512 512" fill="currentColor">
+            <path d="M32 64C14.3 64 0 78.3 0 96s14.3 32 32 32l86.7 0c12.3 28.3 40.5 48 73.3 48s61-19.7 73.3-48L480 128c17.7 0 32-14.3 32-32s-14.3-32-32-32L265.3 64C253 35.7 224.8 16 192 16s-61 19.7-73.3 48L32 64zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32l246.7 0c12.3 28.3 40.5 48 73.3 48s61-19.7 73.3-48l54.7 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-54.7 0c-12.3-28.3-40.5-48-73.3-48s-61 19.7-73.3 48L32 224zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32l54.7 0c12.3 28.3 40.5 48 73.3 48s61-19.7 73.3-48L480 448c17.7 0 32-14.3 32-32s-14.3-32-32-32l-246.7 0c-12.3-28.3-40.5-48-73.3-48s-61 19.7-73.3 48L32 384z"/>
+          </svg>
+        </button>
       </div>
     </header>
 
@@ -82,6 +87,129 @@
               <div class="fallback-actions">
                 <button type="button" class="btn btn-secondary" id="btn-request-camera">Grant Camera Access</button>
                 <button type="button" class="btn btn-subtle" id="btn-dismiss-fallback">Explore Demo Palette</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="wb-drawer-wrapper" id="wb-drawer-wrapper">
+          <div class="wb-drawer-inner">
+            <div class="wb-drawer" id="wb-drawer" aria-label="Camera calibration settings">
+              <div class="wb-drawer-header">
+                <span class="wb-drawer-title">White Balance & Calibration</span>
+                <div class="wb-drawer-actions">
+                  <button type="button" class="btn-text btn-wb-reset" id="btn-wb-reset">Reset</button>
+                  <button type="button" class="btn-close-subtle" id="btn-close-wb" aria-label="Close calibration panel">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <div class="wb-presets-tray" role="radiogroup" aria-label="White Balance Presets">
+                <button type="button" class="btn-wb-preset active" data-preset="auto" aria-checked="true">
+                  <span>Auto</span>
+                </button>
+                <button type="button" class="btn-wb-preset" data-preset="daylight" aria-checked="false">
+                  <svg class="wb-preset-icon" viewBox="0 0 576 512" fill="currentColor">
+                    <path d="M288-32c8.4 0 16.3 4.4 20.6 11.7L364.1 72.3 468.9 46c8.2-2 16.9 .4 22.8 6.3S500 67 498 75.1l-26.3 104.7 92.7 55.5c7.2 4.3 11.7 12.2 11.7 20.6s-4.4 16.3-11.7 20.6L471.7 332.1 498 436.8c2 8.2-.4 16.9-6.3 22.8S477 468 468.9 466l-104.7-26.3-55.5 92.7c-4.3 7.2-12.2 11.7-20.6 11.7s-16.3-4.4-20.6-11.7L211.9 439.7 107.2 466c-8.2 2-16.8-.4-22.8-6.3S76 445 78 436.8l26.2-104.7-92.6-55.5C4.4 272.2 0 264.4 0 256s4.4-16.3 11.7-20.6L104.3 179.9 78 75.1c-2-8.2 .3-16.8 6.3-22.8S99 44 107.2 46l104.7 26.2 55.5-92.6 1.8-2.6c4.5-5.7 11.4-9.1 18.8-9.1zm0 144a144 144 0 1 0 0 288 144 144 0 1 0 0-288zm0 240a96 96 0 1 1 0-192 96 96 0 1 1 0 192z"/>
+                  </svg>
+                  <span>Daylight</span>
+                </button>
+                <button type="button" class="btn-wb-preset" data-preset="cloudy" aria-checked="false">
+                  <svg class="wb-preset-icon" viewBox="0 0 576 512" fill="currentColor">
+                    <path d="M0 336c0 79.5 64.5 144 144 144l304 0c70.7 0 128-57.3 128-128 0-51.6-30.5-96.1-74.5-116.3 6.7-13.1 10.5-28 10.5-43.7 0-53-43-96-96-96-17.7 0-34.2 4.8-48.4 13.1-24.1-45.8-72.2-77.1-127.6-77.1-79.5 0-144 64.5-144 144 0 8 .7 15.9 1.9 23.5-56.9 19.2-97.9 73.1-97.9 136.5z"/>
+                  </svg>
+                  <span>Cloudy</span>
+                </button>
+                <button type="button" class="btn-wb-preset" data-preset="tungsten" aria-checked="false">
+                  <svg class="wb-preset-icon" viewBox="0 0 384 512" fill="currentColor">
+                    <path d="M292.9 384c7.3-22.3 21.9-42.5 38.4-59.9 32.7-34.4 52.7-80.9 52.7-132.1 0-106-86-192-192-192S0 86 0 192c0 51.2 20 97.7 52.7 132.1 16.5 17.4 31.2 37.6 38.4 59.9l201.7 0zM288 432l-192 0 0 16c0 44.2 35.8 80 80 80l32 0c44.2 0 80-35.8 80-80l0-16zM184 112c-39.8 0-72 32.2-72 72 0 13.3-10.7 24-24 24s-24-10.7-24-24c0-66.3 53.7-120 120-120 13.3 0 24 10.7 24 24s-10.7 24-24 24z"/>
+                  </svg>
+                  <span>Tungsten</span>
+                </button>
+                <button type="button" class="btn-wb-preset" data-preset="fluorescent" aria-checked="false">
+                  <svg class="wb-preset-icon" viewBox="0 0 512 512" fill="currentColor">
+                    <path d="M128 48h24c4.4 0 8 3.6 8 8v56h-40V56c0-4.4 3.6-8 8-8zm232 0h24c4.4 0 8 3.6 8 8v56h-40V56c0-4.4 3.6-8 8-8zM48 112h416c8.8 0 16 7.2 16 16v48c0 8.8-7.2 16-16 16H48c-8.8 0-16-7.2-16-16v-48c0-8.8 7.2-16 16-16zm32 96h352c13.3 0 24 10.7 24 24v8c0 13.3-10.7 24-24 24H80c-13.3 0-24-10.7-24-24v-8c0-13.3 10.7-24 24-24zm156 88h40c6.6 0 12 5.4 12 12v112c0 6.6-5.4 12-12 12h-40c-6.6 0-12-5.4-12-12V308c0-6.6 5.4-12 12-12zm-98.6 4.7l34.6 20c5.7 3.3 7.7 10.6 4.4 16.3l-56 97c-3.3 5.7-10.6 7.7-16.3 4.4l-34.6-20c-5.7-3.3-7.7-10.6-4.4-16.3l56-97c3.3-5.7 10.6-7.7 16.3-4.4zm237.2 0c5.7-3.3 13-1.3 16.3 4.4l56 97c3.3 5.7 1.3 13-4.4 16.3l-34.6 20c-5.7 3.3-13 1.3-16.3-4.4l-56-97c-3.3-5.7-1.3-13 4.4-16.3l34.6-20z"/>
+                  </svg>
+                  <span>Fluorescent</span>
+                </button>
+                <button type="button" class="btn-wb-preset" data-preset="manual" aria-checked="false">
+                  <svg class="wb-preset-icon" viewBox="0 0 512 512" fill="currentColor">
+                    <path d="M32 64C14.3 64 0 78.3 0 96s14.3 32 32 32l86.7 0c12.3 28.3 40.5 48 73.3 48s61-19.7 73.3-48L480 128c17.7 0 32-14.3 32-32s-14.3-32-32-32L265.3 64C253 35.7 224.8 16 192 16s-61 19.7-73.3 48L32 64zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32l246.7 0c12.3 28.3 40.5 48 73.3 48s61-19.7 73.3-48l54.7 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-54.7 0c-12.3-28.3-40.5-48-73.3-48s-61 19.7-73.3 48L32 224zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32l54.7 0c12.3 28.3 40.5 48 73.3 48s61-19.7 73.3-48L480 448c17.7 0 32-14.3 32-32s-14.3-32-32-32l-246.7 0c-12.3-28.3-40.5-48-73.3-48s-61 19.7-73.3 48L32 384z"/>
+                  </svg>
+                  <span>Manual</span>
+                </button>
+              </div>
+
+              <div class="wb-quick-action">
+                <button type="button" class="btn-calibrate-target" id="btn-calibrate-target" title="Aim reticle at a white or neutral gray paper">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="8"></circle>
+                    <line x1="12" y1="2" x2="12" y2="5"></line>
+                    <line x1="12" y1="19" x2="12" y2="22"></line>
+                    <line x1="2" y1="12" x2="5" y2="12"></line>
+                    <line x1="19" y1="12" x2="22" y2="12"></line>
+                    <circle cx="12" cy="12" r="1.5" fill="currentColor"></circle>
+                  </svg>
+                  <span>Calibrate on Target (White/Gray)</span>
+                </button>
+              </div>
+
+              <div class="wb-sliders-group" id="wb-sliders-group">
+                <div class="wb-slider-row">
+                  <div class="wb-slider-label">
+                    <span>Temperature</span>
+                    <span class="wb-value-chip" id="wb-temp-val">0</span>
+                  </div>
+                  <div class="wb-slider-track-wrap">
+                    <span class="wb-slider-icon cold" aria-hidden="true" title="Cooler">
+                      <svg viewBox="0 0 512 512" fill="currentColor">
+                        <path d="M288.2 0c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 62.1-15-15c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l49 49 0 70.6-61.2-35.3-17.9-66.9c-3.4-12.8-16.6-20.4-29.4-17S95.3 98 98.7 110.8l5.5 20.5-53.7-31C35.2 91.5 15.6 96.7 6.8 112s-3.6 34.9 11.7 43.7l53.7 31-20.5 5.5c-12.8 3.4-20.4 16.6-17 29.4s16.6 20.4 29.4 17l66.9-17.9 61.2 35.3-61.2 35.3-66.9-17.9c-12.8-3.4-26 4.2-29.4 17s4.2 26 17 29.4l20.5 5.5-53.7 31C3.2 365.1-2 384.7 6.8 400s28.4 20.6 43.7 11.7l53.7-31-5.5 20.5c-3.4 12.8 4.2 26 17 29.4s26-4.2 29.4-17l17.9-66.9 61.2-35.3 0 70.6-49 49c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l15-15 0 62.1c0 17.7 14.3 32 32 32s32-14.3 32-32l0-62.1 15 15c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-49-49 0-70.6 61.2 35.3 17.9 66.9c3.4 12.8 16.6 20.4 29.4 17s20.4-16.6 17-29.4l-5.5-20.5 53.7 31c15.3 8.8 34.9 3.6 43.7-11.7s3.6-34.9-11.7-43.7l-53.7-31 20.5-5.5c12.8-3.4 20.4-16.6 17-29.4s-16.6-20.4-29.4-17l-66.9 17.9-61.2-35.3 61.2-35.3 66.9 17.9c12.8 3.4 26-4.2 29.4-17s-4.2-26-17-29.4l-20.5-5.5 53.7-31c15.3-8.8 20.6-28.4 11.7-43.7s-28.4-20.5-43.7-11.7l-53.7 31 5.5-20.5c3.4-12.8-4.2-26-17-29.4s-26 4.2-29.4 17l-17.9 66.9-61.2 35.3 0-70.6 49-49c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-15 15 0-62.1z"/>
+                      </svg>
+                    </span>
+                    <input type="range" class="wb-slider" id="slider-wb-temp" min="-100" max="100" value="0" step="1" aria-label="Temperature slider">
+                    <span class="wb-slider-icon warm" aria-hidden="true" title="Warmer">
+                      <svg viewBox="0 0 448 512" fill="currentColor">
+                        <path d="M160.5-26.4c9.3-7.8 23-7.5 31.9 .9 12.3 11.6 23.3 24.4 33.9 37.4 13.5 16.5 29.7 38.3 45.3 64.2 5.2-6.8 10-12.8 14.2-17.9 1.1-1.3 2.2-2.7 3.3-4.1 7.9-9.8 17.7-22.1 30.8-22.1 13.4 0 22.8 11.9 30.8 22.1 1.3 1.7 2.6 3.3 3.9 4.8 10.3 12.4 24 30.3 37.7 52.4 27.2 43.9 55.6 106.4 55.6 176.6 0 123.7-100.3 224-224 224S0 411.7 0 288c0-91.1 41.1-170 80.5-225 19.9-27.7 39.7-49.9 54.6-65.1 8.2-8.4 16.5-16.7 25.5-24.2zM225.7 416c25.3 0 47.7-7 68.8-21 42.1-29.4 53.4-88.2 28.1-134.4-4.5-9-16-9.6-22.5-2l-25.2 29.3c-6.6 7.6-18.5 7.4-24.7-.5-17.3-22.1-49.1-62.4-65.3-83-5.4-6.9-15.2-8-21.5-1.9-18.3 17.8-51.5 56.8-51.5 104.3 0 68.6 50.6 109.2 113.7 109.2z"/>
+                      </svg>
+                    </span>
+                  </div>
+                </div>
+
+                <div class="wb-slider-row">
+                  <div class="wb-slider-label">
+                    <span>Tint</span>
+                    <span class="wb-value-chip" id="wb-tint-val">0</span>
+                  </div>
+                  <div class="wb-slider-track-wrap">
+                    <span class="wb-tint-swatch green" aria-hidden="true" title="Green tint"></span>
+                    <input type="range" class="wb-slider" id="slider-wb-tint" min="-100" max="100" value="0" step="1" aria-label="Tint slider">
+                    <span class="wb-tint-swatch magenta" aria-hidden="true" title="Magenta tint"></span>
+                  </div>
+                </div>
+
+                <div class="wb-slider-row">
+                  <div class="wb-slider-label">
+                    <span>Exposure</span>
+                    <span class="wb-value-chip" id="wb-exp-val">0 EV</span>
+                  </div>
+                  <div class="wb-slider-track-wrap">
+                    <span class="wb-slider-icon darker" aria-hidden="true" title="Darker">
+                      <svg viewBox="0 0 512 512" fill="currentColor">
+                        <path d="M256 0C114.6 0 0 114.6 0 256S114.6 512 256 512c68.8 0 131.3-27.2 177.3-71.4 7.3-7 9.4-17.9 5.3-27.1s-13.7-14.9-23.8-14.1c-4.9 .4-9.8 .6-14.8 .6-101.6 0-184-82.4-184-184 0-72.1 41.5-134.6 102.1-164.8 9.1-4.5 14.3-14.3 13.1-24.4S322.6 8.5 312.7 6.3C294.4 2.2 275.4 0 256 0z"/>
+                      </svg>
+                    </span>
+                    <input type="range" class="wb-slider" id="slider-wb-exp" min="-50" max="50" value="0" step="1" aria-label="Exposure slider">
+                    <span class="wb-slider-icon brighter" aria-hidden="true" title="Brighter">
+                      <svg viewBox="0 0 576 512" fill="currentColor">
+                        <path d="M288-32c8.4 0 16.3 4.4 20.6 11.7L364.1 72.3 468.9 46c8.2-2 16.9 .4 22.8 6.3S500 67 498 75.1l-26.3 104.7 92.7 55.5c7.2 4.3 11.7 12.2 11.7 20.6s-4.4 16.3-11.7 20.6L471.7 332.1 498 436.8c2 8.2-.4 16.9-6.3 22.8S477 468 468.9 466l-104.7-26.3-55.5 92.7c-4.3 7.2-12.2 11.7-20.6 11.7s-16.3-4.4-20.6-11.7L211.9 439.7 107.2 466c-8.2 2-16.8-.4-22.8-6.3S76 445 78 436.8l26.2-104.7-92.6-55.5C4.4 272.2 0 264.4 0 256s4.4-16.3 11.7-20.6L104.3 179.9 78 75.1c-2-8.2 .3-16.8 6.3-22.8S99 44 107.2 46l104.7 26.2 55.5-92.6 1.8-2.6c4.5-5.7 11.4-9.1 18.8-9.1zm0 144a144 144 0 1 0 0 288 144 144 0 1 0 0-288zm0 240a96 96 0 1 1 0-192 96 96 0 1 1 0 192z"/>
+                      </svg>
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -227,6 +355,12 @@
     </div>
 
     <canvas id="hidden-sampler-canvas" hidden></canvas>
+
+    <svg style="position: absolute; width: 0; height: 0; pointer-events: none;" aria-hidden="true">
+      <filter id="wb-filter" color-interpolation-filters="sRGB">
+        <feColorMatrix id="wb-matrix" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0"/>
+      </filter>
+    </svg>
   </div>
 </body>
 </html>
