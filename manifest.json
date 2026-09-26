@@ -1,7 +1,7 @@
 {
   "name": "ChromaSight | Real-World Color Picker",
   "short_name": "ChromaSight",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Real-world color picker for identifying colors using the device camera, with HEX, RGB, and HSL color values.",
   "start_url": "./index.html",
   "display": "standalone",
