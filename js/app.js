@@ -1,6 +1,6 @@
 import { samplePixelColor, rgbToHsl } from "./color-engine.js";
 import { copyToClipboard, saveColorToPalette, renderRecentPalette, clearPalette, triggerHaptic, showToast } from "./palette.js";
-import { startCamera, toggleTorch, switchCameraFacing, setupMockCanvasFallback } from "./camera.js";
+import { startCamera, toggleTorch, switchCameraFacing, setupMockCanvasFallback, removeMockCanvasFallback } from "./camera.js";
 import { getReticlePosition, recenterReticle, getFrameCoordinates, bindReticleInteractions } from "./reticle.js";
 import { getCalibrationGains, bindCalibrationEvents } from "./calibration.js";
 
@@ -145,25 +145,48 @@ function processVideoFrame() {
 }
 
 /**
+ * Callback triggered when camera stream successfully starts playback.
+ */
+function onCameraStreamStarted() {
+  removeMockCanvasFallback();
+  if (animationFrameId) {
+    cancelAnimationFrame(animationFrameId);
+  }
+  isFrozen = false;
+  freezeBadge.hidden = true;
+  freezeBtn.classList.remove("frozen");
+  if (reticleElement) {
+    reticleElement.hidden = false;
+  }
+  animationFrameId = requestAnimationFrame(processVideoFrame);
+}
+
+/**
+ * Callback triggered when camera access fails or is denied.
+ */
+function onCameraStreamError() {
+  if (reticleElement) {
+    reticleElement.hidden = true;
+  }
+  if (btnRecenter) {
+    btnRecenter.classList.remove("visible");
+  }
+  setupMockCanvasFallback(viewfinderElement, sampleCurrentFrame);
+}
+
+/**
  * Starts the video stream and launches the continuous sampling loop.
  */
 function startLiveCamera() {
+  if (reticleElement) {
+    reticleElement.hidden = true;
+  }
   startCamera(
     videoElement,
     cameraFallbackElement,
     btnTorch,
-    () => {
-      if (animationFrameId) {
-        cancelAnimationFrame(animationFrameId);
-      }
-      isFrozen = false;
-      freezeBadge.hidden = true;
-      freezeBtn.classList.remove("frozen");
-      animationFrameId = requestAnimationFrame(processVideoFrame);
-    },
-    () => {
-      setupMockCanvasFallback(viewfinderElement, sampleCurrentFrame);
-    }
+    onCameraStreamStarted,
+    onCameraStreamError
   );
 }
 
@@ -281,15 +304,13 @@ function bindEventListeners() {
 
   btnTorch.addEventListener("click", () => toggleTorch(btnTorch));
   btnFlip.addEventListener("click", () => {
-    switchCameraFacing(videoElement, cameraFallbackElement, btnTorch, () => {
-      if (animationFrameId) {
-        cancelAnimationFrame(animationFrameId);
-      }
-      isFrozen = false;
-      freezeBadge.hidden = true;
-      freezeBtn.classList.remove("frozen");
-      animationFrameId = requestAnimationFrame(processVideoFrame);
-    });
+    switchCameraFacing(
+      videoElement,
+      cameraFallbackElement,
+      btnTorch,
+      onCameraStreamStarted,
+      onCameraStreamError
+    );
   });
 
   bindReticleInteractions(viewfinderElement, reticleElement, btnRecenter, sampleCurrentFrame);
@@ -342,7 +363,11 @@ function bindEventListeners() {
   if (dismissFallbackBtn) {
     dismissFallbackBtn.addEventListener("click", () => {
       cameraFallbackElement.hidden = true;
-      showToast("Demo palette active. Tap anywhere on the square!");
+      if (reticleElement) {
+        reticleElement.hidden = false;
+      }
+      sampleCurrentFrame();
+      showToast("Demo palette active");
     });
   }
 }
