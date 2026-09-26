@@ -288,6 +288,8 @@ function setSamplingMode(size) {
     btnSamplePoint.classList.remove("active");
     showToast("Sampling mode: Smooth (5px)");
   }
+
+  sampleCurrentFrame();
 }
 
 //=============================================

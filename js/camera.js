@@ -177,6 +177,19 @@ export function setupMockCanvasFallback(viewfinderElement, onFrameRendered) {
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, width, height);
 
+  const imageData = ctx.getImageData(0, 0, width, height);
+  const data = imageData.data;
+  for (let i = 0; i < data.length; i += 4) {
+    const lumaNoise = (Math.random() - 0.5) * 24;
+    const chromaR = (Math.random() - 0.5) * 8;
+    const chromaG = (Math.random() - 0.5) * 8;
+    const chromaB = (Math.random() - 0.5) * 8;
+    data[i] = Math.min(255, Math.max(0, data[i] + lumaNoise + chromaR));
+    data[i + 1] = Math.min(255, Math.max(0, data[i + 1] + lumaNoise + chromaG));
+    data[i + 2] = Math.min(255, Math.max(0, data[i + 2] + lumaNoise + chromaB));
+  }
+  ctx.putImageData(imageData, 0, 0);
+
   if (typeof onFrameRendered === "function") {
     onFrameRendered();
   }
