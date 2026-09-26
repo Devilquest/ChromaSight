@@ -36,9 +36,19 @@
             <path d="M138.7 96l10.4-31.2C155.6 45.2 173.9 32 194.6 32l122.8 0c20.7 0 39 13.2 45.5 32.8L373.3 96 448 96c35.3 0 64 28.7 64 64l0 256c0 35.3-28.7 64-64 64L64 480c-35.3 0-64-28.7-64-64L0 160c0-35.3 28.7-64 64-64l74.7 0zM96 305.9c0 3.9 1.4 7.7 4 10.6l48 54c6.4 7.2 17.6 7.2 23.9 0l48-54c2.6-2.9 4-6.7 4-10.6l0-1.9c0-8.8-7.2-16-16-16l-24 0c0-39.8 32.2-72 72-72 4.4 0 8.7 .4 12.9 1.2l34.9-39.3c-14.6-6.4-30.8-9.9-47.8-9.9-66.3 0-120 53.7-120 120l-24 0c-8.8 0-16 7.2-16 16l0 1.9zm196-46.5c-2.6 2.9-4 6.7-4 10.6l0 1.9c0 8.8 7.2 16 16 16l24 0c0 39.8-32.2 72-72 72-4.4 0-8.7-.4-12.9-1.2l-34.9 39.3c14.7 6.4 30.8 9.9 47.8 9.9 66.3 0 120-53.7 120-120l24 0c8.8 0 16-7.2 16-16l0-1.9c0-3.9-1.4-7.7-4-10.6l-48-54c-6.4-7.2-17.6-7.2-23.9 0l-48 54z"/>
           </svg>
         </button>
-        <button type="button" class="icon-button" id="btn-wb-toggle" aria-label="Toggle camera calibration and white balance" title="White balance and calibration" aria-expanded="false">
+
+        <span class="header-divider" aria-hidden="true"></span>
+
+        <button type="button" class="icon-button" id="btn-settings-toggle" aria-label="Toggle camera and sampling settings" title="Settings" aria-expanded="false">
           <svg width="17" height="17" viewBox="0 0 512 512" fill="currentColor">
             <path d="M32 64C14.3 64 0 78.3 0 96s14.3 32 32 32l86.7 0c12.3 28.3 40.5 48 73.3 48s61-19.7 73.3-48L480 128c17.7 0 32-14.3 32-32s-14.3-32-32-32L265.3 64C253 35.7 224.8 16 192 16s-61 19.7-73.3 48L32 64zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32l246.7 0c12.3 28.3 40.5 48 73.3 48s61-19.7 73.3-48l54.7 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-54.7 0c-12.3-28.3-40.5-48-73.3-48s-61 19.7-73.3 48L32 224zm0 160c-17.7 0-32 14.3-32 32s14.3 32 32 32l54.7 0c12.3 28.3 40.5 48 73.3 48s61-19.7 73.3-48L480 448c17.7 0 32-14.3 32-32s-14.3-32-32-32l-246.7 0c-12.3-28.3-40.5-48-73.3-48s-61 19.7-73.3 48L32 384z"/>
+          </svg>
+        </button>
+        <button type="button" class="icon-button" id="btn-info" aria-label="Open how-to guide" title="How to use" aria-expanded="false">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
           </svg>
         </button>
       </div>
@@ -83,7 +93,7 @@
           <div class="camera-fallback" id="camera-fallback" hidden>
             <div class="fallback-message">
               <p class="fallback-title">Camera access unavailable</p>
-              <p class="fallback-desc">Grant permissions to use your real camera, or test with the interactive color simulator.</p>
+              <p class="fallback-desc">Grant access to use the device camera, or test with the interactive color simulator.</p>
               <div class="fallback-actions">
                 <button type="button" class="btn btn-secondary" id="btn-request-camera">Grant Camera Access</button>
                 <button type="button" class="btn btn-subtle" id="btn-dismiss-fallback">Explore Demo Palette</button>
@@ -96,10 +106,9 @@
           <div class="wb-drawer-inner">
             <div class="wb-drawer" id="wb-drawer" aria-label="Camera calibration settings">
               <div class="wb-drawer-header">
-                <span class="wb-drawer-title">White Balance & Calibration</span>
+                <span class="wb-drawer-title">Settings</span>
                 <div class="wb-drawer-actions">
-                  <button type="button" class="btn-text btn-wb-reset" id="btn-wb-reset">Reset</button>
-                  <button type="button" class="btn-close-subtle" id="btn-close-wb" aria-label="Close calibration panel">
+                  <button type="button" class="btn-close-subtle" id="btn-close-wb" aria-label="Close settings panel">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <line x1="18" y1="6" x2="6" y2="18"></line>
                       <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -108,7 +117,26 @@
                 </div>
               </div>
 
-              <div class="wb-presets-tray" role="radiogroup" aria-label="White Balance Presets">
+              <div class="settings-section">
+                <div class="settings-section-header">
+                  <span class="settings-section-label">Sampling Precision</span>
+                </div>
+                <div class="sampling-toggle-group" role="radiogroup" aria-label="Sampling Area">
+                  <button type="button" class="toggle-btn active" id="btn-sample-point" data-mode="1" role="radio" aria-checked="true">
+                    Point (1px)
+                  </button>
+                  <button type="button" class="toggle-btn" id="btn-sample-smooth" data-mode="5" role="radio" aria-checked="false">
+                    Smooth (5px)
+                  </button>
+                </div>
+              </div>
+
+              <div class="settings-section">
+                <div class="settings-section-header">
+                  <span class="settings-section-label">White Balance</span>
+                </div>
+
+                <div class="wb-presets-tray" role="radiogroup" aria-label="White Balance Presets">
                 <button type="button" class="btn-wb-preset active" data-preset="auto" aria-checked="true">
                   <span>Auto</span>
                 </button>
@@ -154,7 +182,7 @@
                     <line x1="19" y1="12" x2="22" y2="12"></line>
                     <circle cx="12" cy="12" r="1.5" fill="currentColor"></circle>
                   </svg>
-                  <span>Calibrate on Target (White/Gray)</span>
+                  <span>Calibrate from Target (White/Gray)</span>
                 </button>
               </div>
 
@@ -210,55 +238,6 @@
                     </span>
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="sampling-wrapper">
-          <div class="sampling-controls-row">
-            <div class="sampling-toggle-group" role="group" aria-label="Sampling Area">
-              <button type="button" class="toggle-btn active" id="btn-sample-point" data-mode="1">
-                Point (1px)
-              </button>
-              <button type="button" class="toggle-btn" id="btn-sample-smooth" data-mode="5">
-                Smooth (5px)
-              </button>
-            </div>
-            <button type="button" class="btn-sample-info" id="btn-sample-info" aria-label="Learn about sampling modes" aria-expanded="false" title="What do these options mean?">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="12" y1="16" x2="12" y2="12"></line>
-                <line x1="12" y1="8" x2="12.01" y2="8"></line>
-              </svg>
-            </button>
-          </div>
-          <div class="sampling-popover" id="sampling-popover" hidden>
-            <div class="popover-header">
-              <span class="popover-title">Sampling Precision</span>
-              <button type="button" class="popover-close-btn" id="btn-close-popover" aria-label="Close explanation">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-              </button>
-            </div>
-            <div class="popover-content">
-              <div class="popover-item">
-                <span class="popover-tag">Point (1px)</span>
-                <p class="popover-desc">Measures the color of the single pixel at the center of the reticle.</p>
-              </div>
-              <div class="popover-item">
-                <span class="popover-tag">Smooth (5px)</span>
-                <p class="popover-desc">Measures the average color of a 5×5 pixel area centered on the reticle.</p>
-              </div>
-              <div class="popover-item">
-                <span class="popover-tag">Target Reticle</span>
-                <p class="popover-desc">Tap anywhere on the viewfinder to move the reticle. Double-tap or press the target button to center it.</p>
-              </div>
-              <div class="popover-item">
-                <span class="popover-tag">Freeze / Resume</span>
-                <p class="popover-desc">Freezes the camera frame. Press again to resume live scanning.</p>
               </div>
             </div>
           </div>
@@ -361,6 +340,57 @@
         <feColorMatrix id="wb-matrix" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0"/>
       </filter>
     </svg>
+
+    <div class="info-modal-backdrop" id="info-modal-backdrop" hidden>
+      <div class="info-modal" id="info-modal" role="dialog" aria-modal="true" aria-labelledby="info-modal-title">
+        <div class="info-modal-header">
+          <span class="info-modal-title" id="info-modal-title">How to Use ChromaSight</span>
+          <button type="button" class="btn-close-subtle" id="btn-close-info" aria-label="Close guide">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+        <div class="info-modal-content">
+          <div class="info-modal-section">
+            <span class="info-modal-section-title">Viewfinder</span>
+            <div class="info-modal-item">
+              <span class="info-modal-heading">Reticle</span>
+              <p class="info-modal-text">Tap anywhere on the viewfinder to move the reticle. Double-tap the viewfinder, or press the recenter button, to center it.</p>
+            </div>
+            <div class="info-modal-item">
+              <span class="info-modal-heading">Freeze / Resume</span>
+              <p class="info-modal-text">Freezes the camera frame. Press again to resume live scanning.</p>
+            </div>
+          </div>
+
+          <div class="info-modal-section">
+            <span class="info-modal-section-title">Settings</span>
+            <div class="info-modal-item">
+              <span class="info-modal-heading">Point (1px)</span>
+              <p class="info-modal-text">Measures the color of the single pixel at the center of the reticle.</p>
+            </div>
+            <div class="info-modal-item">
+              <span class="info-modal-heading">Smooth (5px)</span>
+              <p class="info-modal-text">Measures the average color of a 5×5 pixel area centered on the reticle.</p>
+            </div>
+            <div class="info-modal-item">
+              <span class="info-modal-heading">White Balance</span>
+              <p class="info-modal-text">Calibrates white balance from the reticle's current target (white or gray), or applies a lighting preset.</p>
+            </div>
+          </div>
+
+          <div class="info-modal-section">
+            <span class="info-modal-section-title">Recent Captures</span>
+            <div class="info-modal-item">
+              <span class="info-modal-heading">Copy Color</span>
+              <p class="info-modal-text">Copies the color value to the clipboard and adds it to Recent Captures.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </body>
 </html>

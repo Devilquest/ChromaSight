@@ -35,9 +35,9 @@ const btnFlip = document.getElementById("btn-flip");
 
 const btnSamplePoint = document.getElementById("btn-sample-point");
 const btnSampleSmooth = document.getElementById("btn-sample-smooth");
-const btnSampleInfo = document.getElementById("btn-sample-info");
-const samplingPopover = document.getElementById("sampling-popover");
-const btnClosePopover = document.getElementById("btn-close-popover");
+const btnInfo = document.getElementById("btn-info");
+const infoModalBackdrop = document.getElementById("info-modal-backdrop");
+const btnCloseInfo = document.getElementById("btn-close-info");
 const paletteSection = document.getElementById("palette-section");
 const paletteTray = document.getElementById("palette-tray");
 const btnClearPalette = document.getElementById("btn-clear-palette");
@@ -298,35 +298,36 @@ function bindEventListeners() {
   btnSamplePoint.addEventListener("click", () => setSamplingMode(1));
   btnSampleSmooth.addEventListener("click", () => setSamplingMode(5));
 
-  if (btnSampleInfo && samplingPopover) {
-    btnSampleInfo.addEventListener("click", e => {
-      e.stopPropagation();
-      const isOpening = samplingPopover.hidden;
-      samplingPopover.hidden = !isOpening;
-      btnSampleInfo.setAttribute("aria-expanded", String(isOpening));
-      btnSampleInfo.classList.toggle("active", isOpening);
+  if (btnInfo && infoModalBackdrop) {
+    btnInfo.addEventListener("click", () => {
+      const isOpening = infoModalBackdrop.hidden;
+      infoModalBackdrop.hidden = !isOpening;
+      btnInfo.setAttribute("aria-expanded", String(isOpening));
+      btnInfo.classList.toggle("active", isOpening);
     });
   }
 
-  if (btnClosePopover && samplingPopover) {
-    btnClosePopover.addEventListener("click", () => {
-      samplingPopover.hidden = true;
-      if (btnSampleInfo) {
-        btnSampleInfo.setAttribute("aria-expanded", "false");
-        btnSampleInfo.classList.remove("active");
+  if (btnCloseInfo && infoModalBackdrop) {
+    btnCloseInfo.addEventListener("click", () => {
+      infoModalBackdrop.hidden = true;
+      if (btnInfo) {
+        btnInfo.setAttribute("aria-expanded", "false");
+        btnInfo.classList.remove("active");
       }
     });
   }
 
-  document.addEventListener("click", e => {
-    if (samplingPopover && !samplingPopover.hidden && !samplingPopover.contains(e.target) && e.target !== btnSampleInfo) {
-      samplingPopover.hidden = true;
-      if (btnSampleInfo) {
-        btnSampleInfo.setAttribute("aria-expanded", "false");
-        btnSampleInfo.classList.remove("active");
+  if (infoModalBackdrop) {
+    infoModalBackdrop.addEventListener("click", e => {
+      if (e.target === infoModalBackdrop) {
+        infoModalBackdrop.hidden = true;
+        if (btnInfo) {
+          btnInfo.setAttribute("aria-expanded", "false");
+          btnInfo.classList.remove("active");
+        }
       }
-    }
-  });
+    });
+  }
 
   btnClearPalette.addEventListener("click", () => {
     clearPalette();
@@ -344,15 +345,6 @@ function bindEventListeners() {
       showToast("Demo palette active. Tap anywhere on the square!");
     });
   }
-
-  window.addEventListener("keydown", e => {
-    if (e.code === "Space") {
-      e.preventDefault();
-      toggleFreeze();
-    } else if (e.code === "KeyC" && (e.metaKey || e.ctrlKey)) {
-      handleCopy("hex");
-    }
-  });
 }
 
 /**

@@ -1,8 +1,5 @@
 import { triggerHaptic, showToast } from "./palette.js";
 
-//=============================================
-// CAMERA HARDWARE & STREAM STATE
-//=============================================
 let currentStream = null;
 let currentTrack = null;
 let facingMode = "environment";
@@ -147,9 +144,6 @@ export async function switchCameraFacing(videoElement, cameraFallbackElement, bt
   await startCamera(videoElement, cameraFallbackElement, btnTorch, onStreamStarted);
 }
 
-//=============================================
-// FALLBACK CANVAS SIMULATION
-//=============================================
 /**
  * Creates an interactive fallback canvas if the device has no camera or permission is denied.
  * @param {HTMLElement} viewfinderElement - Viewfinder container element.

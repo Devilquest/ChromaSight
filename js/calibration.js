@@ -39,10 +39,9 @@ function getDomElements() {
       sliderWbTint: document.getElementById("slider-wb-tint"),
       sliderWbExp: document.getElementById("slider-wb-exp"),
       wbPresetButtons: document.querySelectorAll(".btn-wb-preset"),
-      btnWbToggle: document.getElementById("btn-wb-toggle"),
+      btnWbToggle: document.getElementById("btn-settings-toggle") || document.getElementById("btn-wb-toggle"),
       wbDrawerWrapper: document.getElementById("wb-drawer-wrapper"),
       btnCloseWb: document.getElementById("btn-close-wb"),
-      btnWbReset: document.getElementById("btn-wb-reset"),
       btnCalibrateTarget: document.getElementById("btn-calibrate-target")
     };
   }
@@ -219,15 +218,9 @@ export function calibrateOnTarget() {
 
   applyCalibration();
   triggerHaptic(50);
-  showToast("Calibrated on target (White/Gray)");
+  showToast("Calibrated from target (White/Gray)");
 }
 
-/**
- * Resets white balance calibration back to neutral auto.
- */
-export function resetCalibration() {
-  setWbPreset("auto");
-}
 
 /**
  * Toggles visibility of the white balance calibration drawer with smooth animation.
@@ -264,7 +257,6 @@ export function bindCalibrationEvents(options = {}) {
     btnWbToggle,
     wbDrawerWrapper,
     btnCloseWb,
-    btnWbReset,
     btnCalibrateTarget,
     wbPresetButtons,
     sliderWbTemp,
@@ -284,10 +276,6 @@ export function bindCalibrationEvents(options = {}) {
         btnWbToggle.setAttribute("aria-expanded", "false");
       }
     });
-  }
-
-  if (btnWbReset) {
-    btnWbReset.addEventListener("click", resetCalibration);
   }
 
   if (btnCalibrateTarget) {
