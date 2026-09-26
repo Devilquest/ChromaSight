@@ -33,7 +33,8 @@ export function setReticlePosition(normX, normY, reticleElement, btnRecenter) {
 
   const isCentered = Math.abs(clampedX - 0.5) < 0.02 && Math.abs(clampedY - 0.5) < 0.02;
   if (btnRecenter) {
-    btnRecenter.classList.toggle("visible", !isCentered);
+    const isReticleVisible = reticleElement && !reticleElement.hidden;
+    btnRecenter.classList.toggle("visible", !isCentered && isReticleVisible);
   }
 }
 
@@ -102,7 +103,13 @@ export function bindReticleInteractions(viewfinderElement, reticleElement, btnRe
   }
 
   viewfinderElement.addEventListener("pointerdown", e => {
-    if (e.target.closest("#btn-recenter") || e.target.closest(".btn-recenter")) {
+    if (
+      (reticleElement && reticleElement.hidden) ||
+      e.target.closest("#btn-recenter") ||
+      e.target.closest(".btn-recenter") ||
+      e.target.closest("#camera-fallback") ||
+      e.target.closest(".camera-fallback")
+    ) {
       return;
     }
 

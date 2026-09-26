@@ -108,6 +108,7 @@ export async function startCamera(videoElement, cameraFallbackElement, btnTorch,
     if (cameraFallbackElement) {
       cameraFallbackElement.hidden = true;
     }
+    removeMockCanvasFallback();
 
     currentTrack = stream.getVideoTracks()[0];
     checkTorchCapability(btnTorch);
@@ -135,13 +136,14 @@ export async function startCamera(videoElement, cameraFallbackElement, btnTorch,
  * @param {HTMLElement} cameraFallbackElement - Fallback message element.
  * @param {HTMLButtonElement} btnTorch - Torch button element.
  * @param {Function} [onStreamStarted] - Callback when switched stream begins.
+ * @param {Function} [onErrorFallback] - Callback when camera stream fails.
  * @returns {Promise<void>}
  */
-export async function switchCameraFacing(videoElement, cameraFallbackElement, btnTorch, onStreamStarted) {
+export async function switchCameraFacing(videoElement, cameraFallbackElement, btnTorch, onStreamStarted, onErrorFallback) {
   facingMode = facingMode === "environment" ? "user" : "environment";
   triggerHaptic(15);
   showToast(`Switched to ${facingMode === "environment" ? "back" : "front"} camera`);
-  await startCamera(videoElement, cameraFallbackElement, btnTorch, onStreamStarted);
+  await startCamera(videoElement, cameraFallbackElement, btnTorch, onStreamStarted, onErrorFallback);
 }
 
 /**
@@ -180,4 +182,14 @@ export function setupMockCanvasFallback(viewfinderElement, onFrameRendered) {
   }
 
   return fallbackCanvas;
+}
+
+/**
+ * Removes the interactive fallback canvas from the DOM if present.
+ */
+export function removeMockCanvasFallback() {
+  const fallbackCanvas = document.getElementById("fallback-interactive-canvas");
+  if (fallbackCanvas) {
+    fallbackCanvas.remove();
+  }
 }
