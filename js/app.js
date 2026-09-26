@@ -282,10 +282,16 @@ function setSamplingMode(size) {
   if (size === 1) {
     btnSamplePoint.classList.add("active");
     btnSampleSmooth.classList.remove("active");
+    if (reticleElement) {
+      reticleElement.classList.remove("mode-smooth");
+    }
     showToast("Sampling mode: Point (1px)");
   } else {
     btnSampleSmooth.classList.add("active");
     btnSamplePoint.classList.remove("active");
+    if (reticleElement) {
+      reticleElement.classList.add("mode-smooth");
+    }
     showToast("Sampling mode: Smooth (5px)");
   }
 
