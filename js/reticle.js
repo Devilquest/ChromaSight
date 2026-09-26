@@ -1,8 +1,5 @@
 import { triggerHaptic, showToast } from "./palette.js";
 
-//=============================================
-// RETICLE STATE & POSITIONING
-//=============================================
 let reticlePos = { x: 0.5, y: 0.5 };
 let isPointerActive = false;
 let lastTapTimestamp = 0;
@@ -87,9 +84,6 @@ export function getFrameCoordinates(viewfinderElement, samplerCanvas, videoEleme
   return { frameX, frameY };
 }
 
-//=============================================
-// VIEWFINDER POINTER INTERACTIONS
-//=============================================
 /**
  * Binds pointer and touch interactions to drag the reticle across the viewfinder.
  * @param {HTMLElement} viewfinderElement - Viewfinder container element.

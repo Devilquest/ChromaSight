@@ -3,9 +3,6 @@ export const MAX_SWATCHES = 8;
 
 let toastTimer = null;
 
-//=============================================
-// FEEDBACK & NOTIFICATIONS
-//=============================================
 /**
  * Triggers subtle device haptic feedback if supported by the browser.
  * @param {number} [duration=15] - Duration of vibration in milliseconds.
@@ -78,9 +75,6 @@ export async function copyToClipboard(text, feedbackMsg = "Copied to clipboard")
   }
 }
 
-//=============================================
-// PALETTE STORAGE & RENDERING
-//=============================================
 /**
  * Retrieves saved color swatches from localStorage.
  * @returns {Array<{ hex: string, rgb: string, hsl: string, name: string, timestamp: number }>} Saved colors array.
