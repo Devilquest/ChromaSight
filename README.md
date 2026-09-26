@@ -6,7 +6,7 @@
 
 **Real-world color picker for identifying colors using the device camera, with HEX, RGB, and HSL color values.**
 
-[![Version](https://img.shields.io/badge/version-1.0.1-blue.svg)](#changelog)
+[![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](#changelog)
 [![License: MIT](https://img.shields.io/badge/License-MIT-f59e0b.svg)](LICENSE)
 [![Live Site](https://img.shields.io/badge/Live%20Site-Visit-10b981.svg)](https://devilquest.github.io/ChromaSight/)
 
@@ -40,8 +40,9 @@ ChromaSight is a client-side web application for color measurement. It captures 
 - **Sampling Precision**: Supports 1-pixel sampling and 5×5 pixel area averaging.
 - **Movable Reticle**: Positions the target point across the viewfinder using tap or drag, with double-tap and button recentering.
 - **Color Conversion & Naming**: Calculates HEX, RGB, and HSL values with closest color name matching using the CIEDE2000 algorithm.
+- **White Balance Calibration**: Provides temperature, tint, and exposure controls, lighting presets, and one-tap neutral surface calibration.
 - **Freeze Frame**: Pauses video streaming to inspect pixels on a static frame.
-- **Clipboard Copy**: Copies HEX, RGB, or HSL values directly to the clipboard.
+- **Clipboard Copy**: Copies HEX, RGB, or HSL values to the clipboard.
 - **Saved Swatches**: Stores copied colors in local storage with a history tray.
 - **Hardware Controls**: Toggles the device flashlight and switches between available cameras.
 
@@ -112,9 +113,12 @@ ChromaSight is a client-side web application for color measurement. It captures 
 ├── images/
 │   └── icon-192.png        Application icon asset
 ├── js/
-│   ├── app.js              DOM bindings, event handling, and camera frame lifecycle
+│   ├── app.js              Application initialization, event binding, and frame lifecycle
+│   ├── calibration.js      White balance color correction, presets, and neutral surface sampling
+│   ├── camera.js           MediaDevices stream acquisition and hardware capabilities
 │   ├── color-engine.js     Color space conversions, spatial sampling, and CIEDE2000 matching
-│   └── palette.js          Clipboard utilities, haptic triggers, and localStorage persistence
+│   ├── palette.js          Color history management, clipboard operations, and storage
+│   └── reticle.js          Viewport pointer tracking, targeting constraints, and recentering
 ├── index.html              Single-page application layout and accessible HUD markup
 └── manifest.json           Progressive Web App configuration and metadata
 ```
@@ -122,6 +126,21 @@ ChromaSight is a client-side web application for color measurement. It captures 
 ---
 
 ## Changelog
+
+### [1.1.0]
+- **Added**:
+  - **White balance calibration**: Manual temperature, tint, and exposure sliders, lighting condition presets, and one-tap neutral surface calibration.
+  - **Unified settings drawer**: Consolidated drawer containing sampling precision options, calibration controls, and haptic feedback settings.
+  - **In-app documentation**: Modal dialog detailing viewfinder controls, reticle positioning, and sampling precision modes.
+  - **Sampling area frame**: Visual 5×5 pixel bounding box highlighting the active averaging window in Smooth mode.
+  - **High-contrast reticle**: Fine hairline center mark with a solid 1px outline in Point mode, plus a dual-contrast outer ring for visibility against any background.
+- **Changed**:
+  - **Modular architecture**: Codebase reorganization into dedicated modules for camera stream lifecycle, reticle tracking, color space conversion, and calibration.
+  - **Immediate readout refresh**: Color readout updates immediately when toggling sampling precision, without requiring reticle movement.
+  - **Integer pixel coordinate snapping**: Reticle coordinates snap to integer pixels, preventing antialiasing blur on hairline reticle lines.
+- **Fixed**:
+  - **Camera fallback overlay stacking**: Interactive button layer ordering when camera access is denied.
+  - **Camera fallback canvas cleanup**: Removal of the fallback canvas element upon granting camera permission.
 
 ### [1.0.1]
 - **Changed**:
