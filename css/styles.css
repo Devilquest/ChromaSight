@@ -303,7 +303,7 @@ button {
   left: 50%;
   width: 45px;
   height: 45px;
-  transform: translate(-50%, -50%);
+  transform: translate(-22px, -22px);
   pointer-events: none;
 }
 
@@ -363,11 +363,45 @@ button {
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.95);
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.7);
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 0 1px #000000,
+              inset 0 0 0 1px #000000;
+}
+
+.reticle-sample-box {
+  display: none;
+  position: absolute;
+  top: 19px;
+  left: 19px;
+  width: 7px;
+  height: 7px;
+  border: 1px solid #ffffff;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.85);
+  box-sizing: border-box;
+  background-color: transparent;
+  pointer-events: none;
+}
+
+.reticle.mode-smooth .reticle-sample-box {
+  display: block;
+}
+
+.reticle-crosshair-wrap {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  filter: drop-shadow(1px 0 0 #000000)
+          drop-shadow(-1px 0 0 #000000)
+          drop-shadow(0 1px 0 #000000)
+          drop-shadow(0 -1px 0 #000000);
+}
+
+.reticle.mode-smooth .reticle-crosshair-wrap {
+  display: none;
 }
 
 .reticle-inner-dot {
+  display: none;
   position: absolute;
   top: 19px;
   left: 19px;
@@ -382,22 +416,21 @@ button {
 
 .reticle-crosshair {
   position: absolute;
-  background-color: rgba(255, 255, 255, 0.85);
-  box-shadow: 0 0 2px rgba(0, 0, 0, 0.6);
+  background-color: #ffffff;
 }
 
 .reticle-crosshair.horizontal {
   top: 22px;
-  left: 15px;
-  width: 15px;
+  left: 17px;
+  width: 11px;
   height: 1px;
 }
 
 .reticle-crosshair.vertical {
-  top: 15px;
+  top: 17px;
   left: 22px;
   width: 1px;
-  height: 15px;
+  height: 11px;
 }
 
 .freeze-badge {
