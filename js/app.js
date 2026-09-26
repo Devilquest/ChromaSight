@@ -361,7 +361,7 @@ function bindEventListeners() {
   btnClearPalette.addEventListener("click", () => {
     clearPalette();
     refreshPaletteTray();
-    showToast("History cleared");
+    showToast("Recent captures cleared");
   });
 
   if (requestCameraBtn) {
