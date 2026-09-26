@@ -6,7 +6,7 @@
 
 **Real-world color picker for identifying colors using the device camera, with HEX, RGB, and HSL color values.**
 
-[![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](#changelog)
+[![Version](https://img.shields.io/badge/version-1.1.1-blue.svg)](#changelog)
 [![License: MIT](https://img.shields.io/badge/License-MIT-f59e0b.svg)](LICENSE)
 [![Live Site](https://img.shields.io/badge/Live%20Site-Visit-10b981.svg)](https://devilquest.github.io/ChromaSight/)
 
@@ -127,6 +127,12 @@ ChromaSight is a client-side web application for color measurement. It captures 
 
 ## Changelog
 
+### [1.1.1]
+- **Changed**:
+  - **Toast wording**: Aligns the "palette cleared" toast text with Recent Captures naming.
+- **Fixed**:
+  - **Header layout on small screens**: Resolves control collisions and eliminates horizontal scrolling on narrow viewports.
+
 ### [1.1.0]
 - **Added**:
   - **White balance calibration**: Manual temperature, tint, and exposure sliders, lighting condition presets, and one-tap neutral surface calibration.
@@ -145,20 +151,20 @@ ChromaSight is a client-side web application for color measurement. It captures 
 ### [1.0.1]
 - **Changed**:
   - **Viewport notifications**: Relocates floating toast notifications to the viewport bottom to prevent obstructing the camera viewfinder.
-  - **Freeze frame terminology**: Replaces color locking wording with camera frame freezing across UI hints, telemetry documentation, and status feedback.
+  - **Freeze frame terminology**: Replaces color locking wording with camera frame freezing across UI hints, internal documentation, and status feedback.
   - **Application branding**: Harmonizes the title and description to "ChromaSight | Real-World Color Picker" across the web manifest, document metadata, and documentation.
 
 ### [1.0.0]
 - **Added**: Initial release.
-  - Camera viewfinder with real-time canvas pixel sampling.
-  - Point (1px) and Smooth (5px) sampling radius modes.
-  - Movable target reticle with double-tap and button recentering.
-  - HEX, RGB, and HSL color value conversion.
-  - Color name matching using the CIEDE2000 algorithm.
-  - Video freeze and resume controls.
-  - Clipboard copy for HEX, RGB, and HSL values.
-  - Local swatch history tray with clear controls.
-  - Flashlight toggle and camera facing mode switcher.
+  - **Camera viewfinder**: Real-time canvas pixel sampling.
+  - **Sampling precision modes**: Point (1px) and Smooth (5px) radius modes.
+  - **Reticle**: Movable reticle, centered via double-tap or the recenter button.
+  - **Color format conversion**: HEX, RGB, and HSL color values.
+  - **Color name matching**: Identification using the CIEDE2000 algorithm.
+  - **Freeze and resume**: Video frame freeze and live scan controls.
+  - **Clipboard copy**: One-tap copy for HEX, RGB, and HSL values.
+  - **Recent Captures**: Local tray with clear controls.
+  - **Camera controls**: Flashlight toggle and camera facing mode switcher.
 
 ---
 
